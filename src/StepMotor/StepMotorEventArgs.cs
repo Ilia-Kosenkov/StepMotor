@@ -42,7 +42,7 @@ namespace StepMotor
             private set;
         }
 
-        public StepMotorEventArgs(byte[] message)
+        public StepMotorEventArgs(ReadOnlySpan<byte> message)
         {
             Reply = new Reply(message);
 

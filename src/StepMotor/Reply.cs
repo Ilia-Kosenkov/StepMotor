@@ -29,7 +29,7 @@ namespace StepMotor
     /// Represents a reply from a step motor.
     /// </summary>
     [DataContract]
-    public struct Reply
+    public readonly struct Reply
     {
         /// <summary>
         /// Reply byte length.
@@ -40,52 +40,34 @@ namespace StepMotor
         /// Address of the reply.
         /// </summary>
         [DataMember]
-        public byte ReplyAddress
-        {
-            get;
-            private set;
-        }
+        public byte ReplyAddress { get; }
 
         /// <summary>
         /// Address of the module.
         /// </summary>
         [DataMember]
-        public byte ModuleAddress
-        {
-            get;
-            private set;
-        }
+        public byte ModuleAddress { get; }
 
         /// <summary>
         /// Status of a command execution.
         /// </summary>
         [DataMember]
-        public ReturnStatus Status
-        {
-            get;
-            private set;
-        }
+        public ReturnStatus Status { get; }
 
         /// <summary>
         /// Sent command.
         /// </summary>
         [DataMember]
-        public Command Command
-        {
-            get;
-            private set;
-        }
+        public Command Command { get; }
 
         /// <summary>
         /// Return value, Stores either value sent to motor or step motor parameter value if
         /// <see cref="StepMotor.Command"/> is Get***.
         /// </summary>
         [DataMember]
-        public int ReturnValue
-        {
-            get;
-            private set;
-        }
+        public int ReturnValue { get; }
+
+        public bool IsSuccess => Status == ReturnStatus.Success;
 
         /// <summary>
         /// Constructs reply from COM-port byte reply.
@@ -121,19 +103,19 @@ namespace StepMotor
 
                 // 2-nd is status (coerced to enum)
                 Status = Enum.IsDefined(typeof(ReturnStatus), replyData[2])
-                    ? (ReturnStatus)replyData[2]
+                    ? (ReturnStatus) replyData[2]
                     : ReturnStatus.UnknownError;
 
                 // 3-rd is command for which respond is received (coerced to enum)
                 Command = Enum.IsDefined(typeof(Command), replyData[3])
-                    ? (Command)replyData[3]
+                    ? (Command) replyData[3]
                     : Command.Unknown;
 
                 // Bytes 4 to 7 are Int32 return value. 
                 // Step motor returns it in Most Significant Bit First format, so 
                 // for LittleEndian environments sequence should be reversed
                 ReturnValue = BitConverter.IsLittleEndian
-                    ? BitConverter.ToInt32(new[] { replyData[7], replyData[6], replyData[5], replyData[4] }, 0)
+                    ? BitConverter.ToInt32(new[] {replyData[7], replyData[6], replyData[5], replyData[4]}, 0)
                     : BitConverter.ToInt32(replyData, 4);
             }
             // If length is wrong, return a failed state reply
@@ -147,7 +129,7 @@ namespace StepMotor
             }
         }
 
-        public Reply(Span<byte> replyData)
+        public Reply(ReadOnlySpan<byte> replyData)
         {
             if (replyData.IsEmpty || replyData.Length < ReplyLength)
                 throw new ArgumentException(nameof(replyData));
@@ -170,12 +152,12 @@ namespace StepMotor
 
             // 2-nd is status (coerced to enum)
             Status = Enum.IsDefined(typeof(ReturnStatus), replyData[2])
-                ? (ReturnStatus)replyData[2]
+                ? (ReturnStatus) replyData[2]
                 : ReturnStatus.UnknownError;
 
             // 3-rd is command for which respond is received (coerced to enum)
             Command = Enum.IsDefined(typeof(Command), replyData[3])
-                ? (Command)replyData[3]
+                ? (Command) replyData[3]
                 : Command.Unknown;
 
             // Bytes 4 to 7 are Int32 return value. 

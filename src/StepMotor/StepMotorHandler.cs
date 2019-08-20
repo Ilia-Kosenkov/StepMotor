@@ -120,7 +120,7 @@ namespace StepMotor
                     1, CommandParam.Default,
                     address, 0, _timeOut);
 
-                return result.Status == ReturnStatus.Success;
+                return result.IsSuccess;
             }
             catch (Exception)
             {
@@ -400,7 +400,7 @@ namespace StepMotor
                 foreach (var param in CommandParam.GeneralAxisParams)
                 {
                     var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
-                    if (reply.Status == ReturnStatus.Success)
+                    if (reply.IsSuccess)
                         status.Add(param, reply.ReturnValue);
                 }
             }
@@ -441,7 +441,7 @@ namespace StepMotor
                 foreach (var param in CommandParam.RotationAxisParams)
                 {
                     var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
-                    if (reply.Status == ReturnStatus.Success)
+                    if (reply.IsSuccess)
                         status.Add(param, reply.ReturnValue);
                 }
 
@@ -464,7 +464,7 @@ namespace StepMotor
                 CommandParam.AxisParameter.ActualPosition,
                 motorOrBank);
 
-            if (reply.Status == ReturnStatus.Success)
+            if (reply.IsSuccess)
                 return reply.ReturnValue;
             throw new InvalidOperationException("Failed to retrieve value.");
         }
@@ -475,7 +475,7 @@ namespace StepMotor
                 Command.GetAxisParameter,
                 0, CommandParam.AxisParameter.TargetPositionReached,
                 motorOrBank);
-            if (reply.Status == ReturnStatus.Success)
+            if (reply.IsSuccess)
                 return reply.ReturnValue == 1;
             throw new InvalidOperationException("Failed to retrieve value.");
         }
@@ -521,7 +521,7 @@ namespace StepMotor
                 CommandParam.AxisParameter.TargetPosition,
                 motorOrBank);
 
-            if (reply.Status != ReturnStatus.Success)
+            if (!reply.IsSuccess)
                 throw new InvalidOperationException("Filed to query target position.");
 
             var target = reply.ReturnValue;
@@ -563,7 +563,7 @@ namespace StepMotor
                 CommandParam.AxisParameter.ActualSpeed,
                 motorOrBank);
 
-            if (reply.Status == ReturnStatus.Success)
+            if (reply.IsSuccess)
                 return reply.ReturnValue != 0;
             throw new InvalidOperationException("Failed to retrieve value.");
         }
@@ -575,7 +575,7 @@ namespace StepMotor
                 0,
                 CommandParam.RefSearchType.Stop,
                 motorOrBank: motorOrBank);
-            if (reply.Status != ReturnStatus.Success)
+            if (!reply.IsSuccess)
                 throw new InvalidOperationException("Failed to retrieve value.");
         }
 
@@ -587,7 +587,7 @@ namespace StepMotor
                 Command.MoveToPosition,
                 0, CommandParam.MoveType.Absolute,
                 motorOrBank);
-            if (reply.Status != ReturnStatus.Success)
+            if (!reply.IsSuccess)
                 throw new InvalidOperationException("Failed to return to the origin.");
 
             token.ThrowIfCancellationRequested();
@@ -598,7 +598,7 @@ namespace StepMotor
         public async Task ReferenceReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0)
         {
             var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Start, motorOrBank);
-            if (reply.Status != ReturnStatus.Success)
+            if (!reply.IsSuccess)
                 throw new InvalidOperationException("Failed to start reference search.");
 
             if (token.IsCancellationRequested)
@@ -609,7 +609,7 @@ namespace StepMotor
             var deltaMs = 200;
 
             while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Status, motorOrBank))
-                   .Status == ReturnStatus.Success
+                   .IsSuccess
                    && reply.ReturnValue != 0)
             {
                 if (token.IsCancellationRequested)
@@ -625,7 +625,7 @@ namespace StepMotor
         public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, byte motorOrBank = 0)
         {
             var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
-            if (reply.Status == ReturnStatus.Success)
+            if (reply.IsSuccess)
                 return reply.ReturnValue;
             throw new InvalidOperationException($"{nameof(Command.GetAxisParameter)} failed to retrieve parameter.");
         }

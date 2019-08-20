@@ -627,7 +627,7 @@ namespace StepMotor
             var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
             if (reply.Status == ReturnStatus.Success)
                 return reply.ReturnValue;
-            throw new InvalidOperationException($"{nameof(Command.GetAxisParameter)} failed to retrieve parameter.");''
+            throw new InvalidOperationException($"{nameof(Command.GetAxisParameter)} failed to retrieve parameter.");
         }
 
         private static Task WaitTimeOut(Task task, TimeSpan timeOut = default, CancellationToken token = default)

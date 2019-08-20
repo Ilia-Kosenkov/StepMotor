@@ -117,7 +117,7 @@ namespace StepMotor
 
                 var result = await SendCommandAsync(
                     Command.GetAxisParameter, 
-                    1, (byte) CommandType.Unused, 
+                    1, CommandParam.Default, 
                     address, 0, _timeOut);
 
                 return result.Status == ReturnStatus.Success;
@@ -335,19 +335,6 @@ namespace StepMotor
             // Wait for response
             return await WaitResponseAsync(responseTaskSource.Task, command, timeOut);
         }
-
-        [Obsolete]
-        public Task<Reply> SendCommandAsync(
-            Command command, int argument,
-            CommandType type = CommandType.Unused,
-            byte motorOrBank = 0)
-            => SendCommandAsync(
-                command, 
-                argument, 
-                (byte) type,
-                Address,
-                motorOrBank, 
-                _timeOut);
 
         public Task<Reply> SendCommandAsync(
             Command command, int argument,

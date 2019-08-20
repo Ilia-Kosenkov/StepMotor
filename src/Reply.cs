@@ -78,7 +78,7 @@ namespace StepMotor
 
         /// <summary>
         /// Return value, Stores either value sent to motor or step motor parameter value if
-        /// <see cref="CommandType"/> is Get***.
+        /// <see cref="StepMotor.Command"/> is Get***.
         /// </summary>
         [DataMember]
         public int ReturnValue

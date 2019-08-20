@@ -23,7 +23,7 @@
 using System.Runtime.Serialization;
 // ReSharper disable UnusedMember.Global
 
-namespace StepMotor 
+namespace StepMotor
 {
     /// <summary>
     /// A list of available commands

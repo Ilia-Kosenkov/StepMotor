@@ -53,7 +53,7 @@ namespace StepMotor
         public byte ModuleAddress
         {
             get;
-            private set;          
+            private set;
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace StepMotor
         public Command Command
         {
             get;
-            private set;       
+            private set;
         }
 
         /// <summary>
@@ -115,20 +115,20 @@ namespace StepMotor
 
                 // 0-th byte is reply address
                 ReplyAddress = replyData[0];
-                
+
                 // 1-st is module address
                 ModuleAddress = replyData[1];
-                
+
                 // 2-nd is status (coerced to enum)
-                Status = Enum.IsDefined(typeof(ReturnStatus), replyData[2]) 
-                    ? (ReturnStatus)replyData[2] 
+                Status = Enum.IsDefined(typeof(ReturnStatus), replyData[2])
+                    ? (ReturnStatus)replyData[2]
                     : ReturnStatus.UnknownError;
-                
+
                 // 3-rd is command for which respond is received (coerced to enum)
-                Command = Enum.IsDefined(typeof(Command), replyData[3]) 
-                    ? (Command)replyData[3] 
+                Command = Enum.IsDefined(typeof(Command), replyData[3])
+                    ? (Command)replyData[3]
                     : Command.Unknown;
-                
+
                 // Bytes 4 to 7 are Int32 return value. 
                 // Step motor returns it in Most Significant Bit First format, so 
                 // for LittleEndian environments sequence should be reversed
@@ -149,7 +149,7 @@ namespace StepMotor
 
         public Reply(Span<byte> replyData)
         {
-            if(replyData.IsEmpty || replyData.Length < ReplyLength)
+            if (replyData.IsEmpty || replyData.Length < ReplyLength)
                 throw new ArgumentException(nameof(replyData));
 
             byte checkSum = 0;

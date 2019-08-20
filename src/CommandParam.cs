@@ -115,11 +115,11 @@ namespace StepMotor
         {
             // ReSharper disable PossibleInvalidOperationException
             if (@this.IsCalc)
-                return (byte) @this.Calculation.Value;
+                return (byte)@this.Calculation.Value;
             if (@this.IsRefSearchType)
-                return (byte) @this.RefSearch.Value;
+                return (byte)@this.RefSearch.Value;
             if (@this.IsMoveType)
-                return (byte) @this.Move.Value;
+                return (byte)@this.Move.Value;
             if (@this.IsAxisParamType)
                 return (byte)@this.AxisParam.Value;
             return 0;

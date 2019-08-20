@@ -31,15 +31,15 @@ namespace StepMotor
 {
     public interface IAsyncMotorFactory
     {
-        Task<ImmutableList<byte>> FindDevice(SerialPort port, byte startAddress = 1, byte endAddress = 16);
+        Task<ImmutableList<byte>> FindDeviceAsync(SerialPort port, byte startAddress = 1, byte endAddress = 16);
 
-        Task<IAsyncMotor> TryCreateFromAddress(
+        Task<IAsyncMotor> TryCreateFromAddressAsync(
             SerialPort port, byte address, TimeSpan defaultTimeOut = default);
 
-        Task<IAsyncMotor> TryCreateFirst(
+        Task<IAsyncMotor> TryCreateFirstAsync(
             SerialPort port, byte startAddress = 1, byte endAddress = 16, TimeSpan defaultTimeOut = default);
 
-        Task<IAsyncMotor> CreateFirstOrFromAddress(
+        Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
             SerialPort port, byte address,
             byte startAddress = 1, byte endAddress = 16,
             TimeSpan defaultTimeOut = default);

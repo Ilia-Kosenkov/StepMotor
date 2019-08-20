@@ -30,7 +30,7 @@ namespace StepMotor
 {
     public class StepMotorFactory : IAsyncMotorFactory
     {
-        public async Task<ImmutableList<byte>> FindDevice(SerialPort port, byte startAddress = 1,
+        public async Task<ImmutableList<byte>> FindDeviceAsync(SerialPort port, byte startAddress = 1,
             byte endAddress = 16)
         {
 
@@ -59,7 +59,7 @@ namespace StepMotor
             return result.ToImmutable();
         }
 
-        public async Task<IAsyncMotor> TryCreateFromAddress(
+        public async Task<IAsyncMotor> TryCreateFromAddressAsync(
             SerialPort port, byte address, TimeSpan defaultTimeOut = default)
         {
             if (port is null)
@@ -85,7 +85,7 @@ namespace StepMotor
             return null;
         }
 
-        public async Task<IAsyncMotor> TryCreateFirst(
+        public async Task<IAsyncMotor> TryCreateFirstAsync(
             SerialPort port, byte startAddress = 1, byte endAddress = 16, TimeSpan defaultTimeOut = default)
         {
             if (port is null)
@@ -96,7 +96,7 @@ namespace StepMotor
 
             for (var address = startAddress; address <= endAddress; address++)
             {
-                var motor = await TryCreateFromAddress(port, address, defaultTimeOut);
+                var motor = await TryCreateFromAddressAsync(port, address, defaultTimeOut);
                 if (motor != null)
                     return motor;
             }
@@ -104,12 +104,12 @@ namespace StepMotor
             return null;
         }
 
-        public async Task<IAsyncMotor> CreateFirstOrFromAddress(
+        public async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
             SerialPort port, byte address,
             byte startAddress = 1, byte endAddress = 16,
             TimeSpan defaultTimeOut = default)
-            => (await TryCreateFromAddress(port, address, defaultTimeOut)
-                ?? await TryCreateFirst(port, startAddress, endAddress, defaultTimeOut))
+            => (await TryCreateFromAddressAsync(port, address, defaultTimeOut)
+                ?? await TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))
                ?? throw new InvalidOperationException("Failed to connect to step motor.");
     }
 }

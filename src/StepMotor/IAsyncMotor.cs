@@ -51,5 +51,7 @@ namespace StepMotor
         Task<Reply> MoveToPosition(int position,
             CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute,
             byte motorOrBank = 0);
+
+        Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, byte motorOrBank = 0);
     }
 }

@@ -45,7 +45,8 @@ namespace DebugTests
         [Test]
         public async Task Test_ZeroPosition()
         {
-            using (var str = new StreamWriter("log.dat"))
+            
+            using (var str = new StreamWriter(Path.Combine(TestContext.CurrentContext.TestDirectory, "log.dat")))
             {
                 void Write(string s)
                 {
@@ -73,7 +74,7 @@ namespace DebugTests
                     if (j == 0)
                         await _motor.ReferenceReturnToOriginAsync();
 
-                    Log(await FakeJob(3200 * j), 3200 * j, n);
+                    Log(await FakeJob(3200 * j), j, n);
                 }
             }
 

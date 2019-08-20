@@ -23,14 +23,13 @@
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 namespace StepMotor
 {
@@ -42,9 +41,9 @@ namespace StepMotor
         private static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly int ResponseSizeInBytes = 9;
+        private const int ResponseSizeInBytes = 9;
 
-        private static readonly int SpeedFactor = 30;
+        private const int SpeedFactor = 30;
 
         /// <summary>
         /// Delegate that handles Data/Error received events.
@@ -157,11 +156,11 @@ namespace StepMotor
                 {
                     await WaitTimeOut(taskSrc.Task, _timeOut);
                 }
-                catch (StepMotorException exept)
+                catch (StepMotorException exception)
                 {
-                    if (exept.RawData != null && exept.RawData.Length > 0)
+                    if (exception.RawData != null && exception.RawData.Length > 0)
                     {
-                        var result = Regex.Match(_port.Encoding.GetString(exept.RawData));
+                        var result = Regex.Match(_port.Encoding.GetString(exception.RawData));
 
                         if (result.Groups.Count == 4
                             && result.Groups[1].Value == addrStr
@@ -491,14 +490,13 @@ namespace StepMotor
         {
             token.ThrowIfCancellationRequested();
             var startTime = DateTime.Now;
-            
-            int target;
+
             var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType) CommandParam.AxisParameter.TargetPosition,
                 motorOrBank);
             if(reply.Status != ReturnStatus.Success)
                 throw new InvalidOperationException("Filed to query target position.");
 
-            target = reply.ReturnValue;
+            var target = reply.ReturnValue;
             var current = await GetActualPositionAsync(motorOrBank);
 
             progressReporter?.Report((current, target));
@@ -762,12 +760,8 @@ namespace StepMotor
                     {
                         if (await motor.PokeAddressInBinary(address))
                             result.Add(address);
-                        else
-                        {
-                            await motor.SwitchToBinary(address);
-                            if (await motor.PokeAddressInBinary(address))
-                                result.Add(address);
-                        }
+                        else if (await motor.SwitchToBinary(address) && await motor.PokeAddressInBinary(address))
+                            result.Add(address);
                     }
                     catch (Exception)
                     {
@@ -795,8 +789,7 @@ namespace StepMotor
                     if (await motor.PokeAddressInBinary(address))
                         return motor;
 
-                    await motor.SwitchToBinary(address);
-                    if (await motor.PokeAddressInBinary(address))
+                    if (await motor.SwitchToBinary(address) && await motor.PokeAddressInBinary(address))
                         return motor;
 
                 }

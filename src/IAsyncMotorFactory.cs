@@ -24,6 +24,8 @@ using System;
 using System.Collections.Immutable;
 using System.IO.Ports;
 using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace StepMotor
 {

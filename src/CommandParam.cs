@@ -21,6 +21,7 @@
 //     SOFTWARE.
 
 
+// ReSharper disable UnusedMember.Global
 namespace StepMotor
 {
     public sealed partial class CommandParam
@@ -48,9 +49,7 @@ namespace StepMotor
         }
 
         public CommandParam(CalcType type) => Calculation = type;
-
         public CommandParam(RefSearchType type) => RefSearch = type;
-
         public CommandParam(MoveType type) => Move = type;
         public CommandParam(AxisParameter type) => AxisParam = type;
 
@@ -105,7 +104,7 @@ namespace StepMotor
                 return (byte) @this.RefSearch.Value;
             if (@this.IsMoveType)
                 return (byte) @this.Move.Value;
-            if (@this.AxisParam.HasValue)
+            if (@this.IsAxisParamType)
                 return (byte)@this.AxisParam.Value;
             return 0;
             // ReSharper restore PossibleInvalidOperationException

@@ -33,10 +33,7 @@ using System.Threading.Tasks;
 
 namespace StepMotor
 {
-    /// <summary>
-    /// A COM-based interface to DIPOL's step-motor.
-    /// </summary>
-    public partial class StepMotorHandler : IAsyncMotor
+    public class StepMotorHandler : IAsyncMotor
     {
         private static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -339,6 +336,7 @@ namespace StepMotor
             return await WaitResponseAsync(responseTaskSource.Task, command, timeOut);
         }
 
+        [Obsolete]
         public Task<Reply> SendCommandAsync(
             Command command, int argument,
             CommandType type = CommandType.Unused,
@@ -350,6 +348,18 @@ namespace StepMotor
                 Address,
                 motorOrBank, 
                 _timeOut);
+
+        public Task<Reply> SendCommandAsync(
+            Command command, int argument,
+            CommandParam param, byte motorOrBank = 0) =>
+            SendCommandAsync(
+                command,
+                argument,
+                param,
+                Address,
+                motorOrBank,
+                _timeOut);
+
 
         /// <summary>
         /// Implements interface and frees resources
@@ -380,13 +390,12 @@ namespace StepMotor
                 
                 // For each basic Axis Parameter queries its value
                 // Uses explicit conversion of byte to AxisParameter
-                for (byte i = 0; i < 14; i++)
+                foreach (var param in CommandParam.GeneralAxisParams)
                 {
-                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType) i);
-                    if(reply.Status == ReturnStatus.Success)
-                        status.Add((CommandParam.AxisParameter)i, reply.ReturnValue);
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
+                    if (reply.Status == ReturnStatus.Success)
+                        status.Add(param, reply.ReturnValue);
                 }
-                
             }
             finally
             {
@@ -398,10 +407,10 @@ namespace StepMotor
             return status.ToImmutable();
         }
 
-        public Task<Reply> MoveToPosition(int position, CommandType rotationType = CommandType.Unused, byte motorOrBank = 0)
-        {
-            return SendCommandAsync(Command.MoveToPosition, position, rotationType, motorOrBank);
-        }
+        public Task<Reply> MoveToPosition(int position, 
+            CommandParam.MoveType type = CommandParam.MoveType.Absolute, 
+            byte motorOrBank = 0) =>
+            SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank);
 
 
         /// <summary>
@@ -422,13 +431,11 @@ namespace StepMotor
             try
             {
 
-                // For each basic Axis Parameter queries its value
-                // Uses explicit conversion of byte to AxisParameter
-                for (byte i = 0; i < 6; i++)
+                foreach (var param in CommandParam.RotationAxisParams)
                 {
-                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType)i);
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
                     if (reply.Status == ReturnStatus.Success)
-                        status.Add((CommandParam.AxisParameter)i, reply.ReturnValue);
+                        status.Add(param, reply.ReturnValue);
                 }
 
             }
@@ -444,8 +451,12 @@ namespace StepMotor
 
         public async Task<int> GetActualPositionAsync(byte motorOrBank = 0)
         {
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType) CommandParam.AxisParameter.ActualPosition,
+            var reply = await SendCommandAsync(
+                Command.GetAxisParameter,
+                0,
+                CommandParam.AxisParameter.ActualPosition,
                 motorOrBank);
+
             if (reply.Status == ReturnStatus.Success)
                 return reply.ReturnValue;
             throw new InvalidOperationException("Failed to retrieve value.");
@@ -453,7 +464,9 @@ namespace StepMotor
 
         public async Task<bool> IsTargetPositionReachedAsync(byte motorOrBank = 0)
         {
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType)CommandParam.AxisParameter.TargetPositionReached,
+            var reply = await SendCommandAsync(
+                Command.GetAxisParameter, 
+                0, CommandParam.AxisParameter.TargetPositionReached,
                 motorOrBank);
             if (reply.Status == ReturnStatus.Success)
                 return reply.ReturnValue == 1;
@@ -486,13 +499,21 @@ namespace StepMotor
                 
         }
 
-        public async Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter, CancellationToken token = default, TimeSpan timeOut = default, byte motorOrBank = 0)
+        public async Task WaitForPositionReachedAsync(
+            IProgress<(int Current, int Target)> progressReporter, 
+            CancellationToken token = default, 
+            TimeSpan timeOut = default, 
+            byte motorOrBank = 0)
         {
             token.ThrowIfCancellationRequested();
             var startTime = DateTime.Now;
 
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType) CommandParam.AxisParameter.TargetPosition,
+            var reply = await SendCommandAsync(
+                Command.GetAxisParameter
+                , 0,
+                CommandParam.AxisParameter.TargetPosition,
                 motorOrBank);
+
             if(reply.Status != ReturnStatus.Success)
                 throw new InvalidOperationException("Filed to query target position.");
 
@@ -529,8 +550,12 @@ namespace StepMotor
 
         public async Task<bool> IsInMotionAsync(byte motorOrBank = 0)
         {
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, (CommandType)CommandParam.AxisParameter.ActualSpeed,
+            var reply = await SendCommandAsync(
+                Command.GetAxisParameter,
+                0, 
+                CommandParam.AxisParameter.ActualSpeed,
                 motorOrBank);
+
             if (reply.Status == ReturnStatus.Success)
                 return reply.ReturnValue != 0;
             throw new InvalidOperationException("Failed to retrieve value.");
@@ -538,7 +563,11 @@ namespace StepMotor
 
         public async Task StopAsync(byte motorOrBank = 0)
         {
-            var reply = await SendCommandAsync(Command.MotorStop, 0, motorOrBank: motorOrBank);
+            var reply = await SendCommandAsync(
+                Command.MotorStop,
+                0,
+                CommandParam.RefSearchType.Stop,
+                motorOrBank: motorOrBank);
             if (reply.Status != ReturnStatus.Success)
                 throw new InvalidOperationException("Failed to retrieve value.");
         }
@@ -547,7 +576,10 @@ namespace StepMotor
         {
             token.ThrowIfCancellationRequested();
 
-            var reply = await SendCommandAsync(Command.MoveToPosition, 0, CommandType.Absolute, motorOrBank);
+            var reply = await SendCommandAsync(
+                Command.MoveToPosition, 
+                0, CommandParam.MoveType.Absolute, 
+                motorOrBank);
             if (reply.Status != ReturnStatus.Success)
                 throw new InvalidOperationException("Failed to return to the origin.");
 
@@ -558,24 +590,24 @@ namespace StepMotor
 
         public async Task ReferenceReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0)
         {
-            var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandType.Start, motorOrBank);
+            var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Start, motorOrBank);
             if (reply.Status != ReturnStatus.Success)
                 throw new InvalidOperationException("Failed to start reference search.");
 
             if (token.IsCancellationRequested)
             {
-                await SendCommandAsync(Command.ReferenceSearch, 0, CommandType.Stop, motorOrBank);
+                await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop, motorOrBank);
                 token.ThrowIfCancellationRequested();
             }
             var deltaMs = 200;
 
-            while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandType.Status, motorOrBank))
+            while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Status, motorOrBank))
                    .Status == ReturnStatus.Success
                    && reply.ReturnValue != 0)
             {
                 if (token.IsCancellationRequested)
                 {
-                    await SendCommandAsync(Command.ReferenceSearch, 0, CommandType.Stop, motorOrBank);
+                    await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop, motorOrBank);
                     token.ThrowIfCancellationRequested();
                 }
                 await Task.Delay(deltaMs, token);

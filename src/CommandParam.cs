@@ -22,10 +22,27 @@
 
 
 // ReSharper disable UnusedMember.Global
+
+using System;
+using System.Collections.Immutable;
+using System.Linq;
+
 namespace StepMotor
 {
     public sealed partial class CommandParam
     {
+        public static ImmutableArray<AxisParameter> GeneralAxisParams { get; }
+            = Enum.GetValues(typeof(AxisParameter))
+                .OfType<AxisParameter>()
+                .Take(15)
+                .ToImmutableArray();
+
+        public static ImmutableArray<AxisParameter> RotationAxisParams { get; }
+            = GeneralAxisParams
+                .Take(6)
+                .ToImmutableArray();
+        public static CommandParam Default { get; } = new CommandParam();
+
         public CalcType? Calculation { get; }
         public RefSearchType? RefSearch { get; }
         public MoveType? Move { get; }
@@ -43,8 +60,7 @@ namespace StepMotor
         public bool IsMoveType => Move.HasValue;
         public bool IsAxisParamType => AxisParam.HasValue;
 
-
-        public CommandParam()
+        private CommandParam()
         {
         }
 

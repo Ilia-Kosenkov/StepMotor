@@ -1,4 +1,8 @@
-﻿using System.IO.Ports;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Ports;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StepMotor;
@@ -26,14 +30,56 @@ namespace DebugTests
             _port.Dispose();
         }
 
+        private async Task<(int Pos, int Internal)> FakeJob(int pos)
+        {
+            await _motor.MoveToPosition(pos, CommandParam.MoveType.Absolute);
+            await _motor.WaitForPositionReachedAsync();
+
+            await Task.Delay(TimeSpan.FromMilliseconds(150));
+
+            var actualPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
+            var internalPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.EncoderPosition);
+            return (actualPos, internalPos);
+        }
+
         [Test]
         public async Task Test_ZeroPosition()
         {
-            await _motor.ReturnToOriginAsync();
-            var actualPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
-            var internalPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.EncoderPosition);
+            using (var str = new StreamWriter("log.dat"))
+            {
+                void Write(string s)
+                {
+                    Console.WriteLine(s);
+                    str.WriteLine(s);
+                }
 
-            Assert.Fail();
+                void Log((int Pos, int Internal) input, int arg, int grp = 0)
+                {
+                    Write($"{arg,10} {input.Pos,10} {input.Internal,10} {grp, 5}");
+                }
+
+                await _motor.ReferenceReturnToOriginAsync();
+                var actualPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
+                var internalPos = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.EncoderPosition);
+
+                Write($"{"Param",10} {"Position",10} {"Internal",10} {"Grp",5}");
+                Write(new string('-', 40));
+                Log((actualPos, internalPos), 0);
+                Write(new string('-', 40));
+                for (var i = 0; i <= 64; i++)
+                {
+                    var j = i % 16;
+                    var n = i / 16;
+                    if (j == 0)
+                        await _motor.ReferenceReturnToOriginAsync();
+
+                    Log(await FakeJob(3200 * j), 3200 * j, n);
+                }
+            }
+
+
+            Assert.Pass();
+
         }
     }
 }

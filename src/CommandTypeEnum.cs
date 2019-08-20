@@ -20,12 +20,14 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //     SOFTWARE.
 
+using System;
 using System.Runtime.Serialization;
 // ReSharper disable UnusedMember.Global
 
 namespace StepMotor
 {
     [DataContract]
+    [Obsolete]
     public enum CommandType : byte
     {
         [EnumMember]

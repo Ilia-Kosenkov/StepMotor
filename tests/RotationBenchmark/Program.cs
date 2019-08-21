@@ -30,9 +30,9 @@ namespace RotationBenchmark
             using (var port = new SerialPort(@"COM1"))
             {
                 IEnumerable<IBenchmark> benchmarks = pars.Zip(nRepeats, (x, y) => new {Par = x, N = y})
-                    .Select(x => new Rotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(5)));
+                    .Select(x => new Rotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(150)));
                 IEnumerable<IBenchmark> reverseBenchmarks = pars.Zip(nRepeats, (x, y) => new { Par = x, N = y })
-                    .Select(x => new ReverseRotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(5)));
+                    .Select(x => new ReverseRotator(port, factory, "log_reverse.dat", x.Par, x.N, TimeSpan.FromMilliseconds(150)));
 
                 foreach (var bench in benchmarks.Concat(reverseBenchmarks))
                 {

@@ -39,7 +39,7 @@ namespace RotationBenchmark
             _delay = delay == default ? TimeSpan.FromMilliseconds(100) : delay;
 
             var newPath = Path.Combine(dir, $"{name}_{param:000000}{ext}");
-            _writer = new StreamWriter(new FileStream(newPath, FileMode.OpenOrCreate, FileAccess.Write));
+            _writer = new StreamWriter(new FileStream(newPath, FileMode.Create, FileAccess.Write));
         }
 
         private async Task InitMotor()
@@ -51,7 +51,7 @@ namespace RotationBenchmark
             await _writer.Log("Actual", "Internal");
         }
 
-        public async Task Benchmark(IProgress<(int Current, int Total)> reporter)
+        public async Task Benchmark(IProgress<bool> reporter)
         {
             await InitMotor();
             await _motor.ReferenceReturnToOriginAsync();
@@ -61,11 +61,11 @@ namespace RotationBenchmark
                 await _motor.WaitForPositionReachedAsync();
 
                 var delayTask = Task.Delay(_delay);
-                reporter?.Report((i, _nRepeats));
+                reporter?.Report(true);
                 await delayTask;
 
-                var actual = _motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
-                var @internal = _motor.GetAxisParameterAsync(CommandParam.AxisParameter.EncoderPosition);
+                var actual = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
+                var @internal = await _motor.GetAxisParameterAsync(CommandParam.AxisParameter.EncoderPosition);
 
                 await _writer.Log(actual, @internal);
             }
@@ -76,6 +76,7 @@ namespace RotationBenchmark
         public void Dispose()
         {
             _writer.Dispose();
+            _motor.Dispose();
         }
     }
 }

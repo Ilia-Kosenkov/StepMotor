@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using StepMotor;
 
@@ -12,19 +14,30 @@ namespace RotationBenchmark
         {
 
             var pars = new[] {100, 1_000, 1_600, 3_200, 4_800, 6_000};
-            var nRepeats = new[] {20, 20, 20, 16, 16, 8};
+            var nRepeats = new[] {60, 50, 40, 32, 32, 24};
+            var total = nRepeats.Sum();
+            var current = 0;
+
             var factory = new StepMotorFactory();
-            var reporter = new Progress<(int Current, int Total)>();
-            reporter.ProgressChanged += (sender, tuple) => Console.WriteLine($"{tuple.Current,4}/{tuple.Total,4}");
+            var reporter = new Progress<bool>();
+            reporter.ProgressChanged += (sender, _) =>
+            {
+                Console.WriteLine($"{Interlocked.Increment(ref current),4}/{total,4}");
+            };
             using (var port = new SerialPort(@"COM1"))
             {
                 var benchmarks = pars.Zip(nRepeats, (x, y) => new {Par = x, N = y})
-                    .Select(x => new Rotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(75)))
-                    .ToList<IBenchmark>();
+                    .Select(x => new Rotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(5)));
                 foreach (var bench in benchmarks)
+                {
+                    Console.WriteLine(@"-----------------------------");
                     await bench.Benchmark(reporter);
+                    bench.Dispose();
+                }
             }
 
+            if (Debugger.IsAttached)
+                Console.ReadKey();
             return 0;
         }
     }

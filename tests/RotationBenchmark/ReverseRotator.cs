@@ -5,10 +5,12 @@ using StepMotor;
 
 namespace RotationBenchmark
 {
-    internal sealed class Rotator : RotatorBase
+    internal sealed class ReverseRotator : RotatorBase
     {
-        public Rotator(SerialPort port, IAsyncMotorFactory factory, string path, int param, int nRepeats, TimeSpan delay = default)
-            : base(port, factory, path, param, nRepeats, delay)
+        public ReverseRotator(SerialPort port, 
+            IAsyncMotorFactory factory, 
+            string path,
+            int param, int nRepeats, TimeSpan delay = default) : base(port, factory, path, param, nRepeats, delay)
         {
         }
 
@@ -16,9 +18,12 @@ namespace RotationBenchmark
         {
             await InitMotor();
             await Motor.ReferenceReturnToOriginAsync();
+            await Motor.MoveToPosition(N * Param);
+            await Motor.WaitForPositionReachedAsync();
+
             for (var i = 0; i < N; i++)
             {
-                await Motor.MoveToPosition(i * Param);
+                await Motor.MoveToPosition((N - i) * Param);
                 await Motor.WaitForPositionReachedAsync();
 
                 var delayTask = Task.Delay(Delay);
@@ -31,6 +36,5 @@ namespace RotationBenchmark
                 await Writer.Log(actual, @internal);
             }
         }
-
     }
 }

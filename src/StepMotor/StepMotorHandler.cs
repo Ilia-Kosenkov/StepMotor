@@ -375,6 +375,8 @@ namespace StepMotor
         {
             while (_responseWaitQueue.TryDequeue(out var taskSrc) && taskSrc?.Task.IsCanceled == false)
                 taskSrc.SetException(new ObjectDisposedException(nameof(StepMotorHandler)));
+            _port.DataReceived -= OnPortDataReceived;
+            _port.ErrorReceived -= OnPortErrorReceived;
         }
 
         /// <summary>

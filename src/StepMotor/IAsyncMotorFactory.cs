@@ -42,7 +42,7 @@ namespace StepMotor
             SerialPort port, Address? startAddress = null, Address? endAddress = null, TimeSpan defaultTimeOut = default);
 
         Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-            SerialPort port, byte address,
+            SerialPort port, Address address,
             Address? startAddress = null, Address? endAddress = null,
             TimeSpan defaultTimeOut = default);
     }

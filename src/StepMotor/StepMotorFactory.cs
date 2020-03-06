@@ -31,7 +31,7 @@ namespace StepMotor
     public class StepMotorFactory : IAsyncMotorFactory
     {
         public async Task<ImmutableList<Address>> FindDeviceAsync(SerialPort port,
-            Address? startAddress, Address? endAddress)
+            Address? startAddress = null, Address? endAddress = null)
         {
             startAddress ??= Address.DefaultStart;
             endAddress ??= Address.DefaultEnd;
@@ -88,7 +88,7 @@ namespace StepMotor
         }
 
         public async Task<IAsyncMotor> TryCreateFirstAsync(
-            SerialPort port, Address? startAddress, Address? endAddress,
+            SerialPort port, Address? startAddress = null, Address? endAddress = null,
             TimeSpan defaultTimeOut = default)
         {
             startAddress ??= Address.DefaultStart;
@@ -111,8 +111,8 @@ namespace StepMotor
         }
 
         public async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-            SerialPort port, byte address,
-            Address? startAddress, Address? endAddress,
+            SerialPort port, Address address,
+            Address? startAddress = null, Address? endAddress = null,
             TimeSpan defaultTimeOut = default)
             => (await TryCreateFromAddressAsync(port, address, defaultTimeOut)
                 ?? await TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))

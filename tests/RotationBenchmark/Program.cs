@@ -14,8 +14,29 @@ namespace RotationBenchmark
         private static async Task<int> Main()
         {
 
-            var pars = new[] {100, 1_000, 1_600, 3_200, 4_800, 6_000};
-            var nRepeats = new[] {60, 50, 40, 32, 32, 24};
+            await Debug();
+            return 0;
+        }
+
+        private static async Task Debug()
+        {
+            using var port = new SerialPort(@"COM4");
+            using var motor = await new StepMotorFactory().CreateFirstOrFromAddressAsync(port, 1);
+
+            await motor.MoveToPosition(3200);
+            await motor.WaitForPositionReachedAsync();
+            var status = await motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
+            Console.WriteLine(status);
+            await motor.ReturnToOriginAsync();
+            status = await motor.GetAxisParameterAsync(CommandParam.AxisParameter.ActualPosition);
+            Console.WriteLine(status);
+
+        }
+
+        private static async Task Job()
+        {
+            var pars = new[] { 100, 1_000, 1_600, 3_200, 4_800, 6_000 };
+            var nRepeats = new[] { 60, 50, 40, 32, 32, 24 };
 
 
             var total = nRepeats.Sum() * 2;
@@ -29,7 +50,7 @@ namespace RotationBenchmark
             };
             using (var port = new SerialPort(@"COM1"))
             {
-                IEnumerable<IBenchmark> benchmarks = pars.Zip(nRepeats, (x, y) => new {Par = x, N = y})
+                IEnumerable<IBenchmark> benchmarks = pars.Zip(nRepeats, (x, y) => new { Par = x, N = y })
                     .Select(x => new Rotator(port, factory, "log.dat", x.Par, x.N, TimeSpan.FromMilliseconds(150)));
                 IEnumerable<IBenchmark> reverseBenchmarks = pars.Zip(nRepeats, (x, y) => new { Par = x, N = y })
                     .Select(x => new ReverseRotator(port, factory, "log_reverse.dat", x.Par, x.N, TimeSpan.FromMilliseconds(150)));
@@ -44,7 +65,6 @@ namespace RotationBenchmark
 
             if (Debugger.IsAttached)
                 Console.ReadKey();
-            return 0;
         }
     }
 }

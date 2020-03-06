@@ -26,12 +26,23 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using static StepMotor.StepMotorHandler;
 
 namespace StepMotor
 {
     public interface IAsyncMotor : IDisposable
     {
         Address Address { get; }
+
+
+        /// <summary>
+        /// Fires when data has been received from COM port.
+        /// </summary>
+        public event StepMotorEventHandler? DataReceived;
+        /// <summary>
+        /// Fires when error data has been received from COM port.
+        /// </summary>
+        public event StepMotorEventHandler? ErrorReceived;
 
         Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
         Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);

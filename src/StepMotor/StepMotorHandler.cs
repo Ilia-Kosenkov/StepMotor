@@ -72,11 +72,11 @@ namespace StepMotor
         /// <summary>
         /// Fires when data has been received from COM port.
         /// </summary>
-        public event StepMotorEventHandler DataReceived;
+        public event StepMotorEventHandler? DataReceived;
         /// <summary>
         /// Fires when error data has been received from COM port.
         /// </summary>
-        public event StepMotorEventHandler ErrorReceived;
+        public event StepMotorEventHandler? ErrorReceived;
 
         /// <summary>
         /// Default constructor
@@ -96,8 +96,8 @@ namespace StepMotor
             Address = address.Value;
             _port = port; //new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
             // Event listeners
-            _port.DataReceived += OnPortDataReceived;
-            _port.ErrorReceived += OnPortErrorReceived;
+            _port.DataReceived += Port_DataReceived;
+            _port.ErrorReceived += Port_ErrorReceived;
             _port.NewLine = "\r";
 
             if (!_port.IsOpen)
@@ -191,10 +191,10 @@ namespace StepMotor
         /// </summary>
         /// <param name="sender">COM port.</param>
         /// <param name="e">Event arguments.</param>
-        private void OnPortErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        private void Port_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             // Reads last response
-            byte[] buffer = null;
+            byte[]? buffer = null;
 
             if (_port.BytesToRead > 0)
                 buffer = new byte[_port.BytesToRead];
@@ -210,12 +210,12 @@ namespace StepMotor
         /// </summary>
         /// <param name="sender">COM port.</param>
         /// <param name="e">Event arguments.</param>
-        private void OnPortDataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (_port.BytesToRead <= 0) return;
+            if (_port.BytesToRead < ResponseSizeInBytes) return;
 
             var len = _port.BytesToRead;
-            byte[] pool = null;
+            
             TaskCompletionSource<Reply> taskSrc;
 
             while (_responseWaitQueue.TryDequeue(out taskSrc) &&
@@ -223,20 +223,7 @@ namespace StepMotor
             {
             }
 
-            // Sometimes step motor writes checksum with a delay.
-            // On trigger .BytesToRead == 8
-            // Checksum is usually written immediately after, 
-            // so small delay allows to capture it
-            if (len < ResponseSizeInBytes)
-            {
-                Task.Delay(TimeSpan.FromMilliseconds(_timeOut.TotalMilliseconds / 4)).GetAwaiter().GetResult();
-                if (_port.BytesToRead % ResponseSizeInBytes == 0)
-                {
-                    len = _port.BytesToRead;
-
-                }
-            }
-
+            byte[]? pool = null;
             try
             {
                 pool = ArrayPool<byte>.Shared.Rent(Math.Max(ResponseSizeInBytes, len));
@@ -251,7 +238,7 @@ namespace StepMotor
                 else if (len % ResponseSizeInBytes == 0)
                 {
                     var reply = new Reply(pool.AsSpan(0, ResponseSizeInBytes));
-                    taskSrc.SetResult(reply);
+                    taskSrc?.SetResult(reply);
                     OnDataReceived(new StepMotorEventArgs(pool.AsSpan(0, ResponseSizeInBytes).ToArray()));
 
                     for (var i = 0; i < len / ResponseSizeInBytes; i++)
@@ -378,8 +365,8 @@ namespace StepMotor
         {
             while (_responseWaitQueue.TryDequeue(out var taskSrc) && taskSrc?.Task.IsCanceled == false)
                 taskSrc.SetException(new ObjectDisposedException(nameof(StepMotorHandler)));
-            _port.DataReceived -= OnPortDataReceived;
-            _port.ErrorReceived -= OnPortErrorReceived;
+            _port.DataReceived -= Port_DataReceived;
+            _port.ErrorReceived -= Port_ErrorReceived;
         }
 
         /// <summary>

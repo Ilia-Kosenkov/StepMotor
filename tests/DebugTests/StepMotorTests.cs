@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using StepMotor;
 
-namespace Tests
+namespace DebugTests
 {
     [TestFixture]
     public class StepMotorStaticTests

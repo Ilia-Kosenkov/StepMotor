@@ -1,6 +1,6 @@
 ﻿//     MIT License
 //     
-//     Copyright(c) 2018-2019 Ilia Kosenkov
+//     Copyright(c) 2018-2020 Ilia Kosenkov
 //     
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,28 @@
 //     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //     SOFTWARE.
-
 #nullable enable
 
 using System;
-using System.Collections.Immutable;
-using System.IO.Ports;
-using System.Threading.Tasks;
-// ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedMemberInSuper.Global
 
 namespace StepMotor
 {
-    public interface IAsyncMotorFactory
+    public readonly struct MotorBank
     {
-        Task<ImmutableList<Address>> FindDeviceAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null);
+        public static MotorBank DefaultStart { get; } = 1;
+        public static MotorBank DefaultEnd { get; }= 16;
 
-        Task<IAsyncMotor> TryCreateFromAddressAsync(
-            SerialPort port, Address address, TimeSpan defaultTimeOut = default);
+        public byte RawValue { get; }
 
-        Task<IAsyncMotor> TryCreateFirstAsync(
-            SerialPort port, Address? startAddress = null, Address? endAddress = null, TimeSpan defaultTimeOut = default);
+        public MotorBank(byte motorOrBank) => RawValue = motorOrBank;
 
-        Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-            SerialPort port, byte address,
-            Address? startAddress = null, Address? endAddress = null,
-            TimeSpan defaultTimeOut = default);
+        public static implicit operator byte(MotorBank motorBank) => motorBank.RawValue;
+        public static implicit operator MotorBank(byte value) => new MotorBank(value);
+
+        public static explicit operator MotorBank(int value)
+            => value >= 0 && value <= byte.MaxValue
+                ? new MotorBank((byte) value)
+                : throw new ArgumentOutOfRangeException(nameof(value));
+
     }
 }

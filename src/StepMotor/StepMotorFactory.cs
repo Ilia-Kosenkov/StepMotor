@@ -30,13 +30,15 @@ namespace StepMotor
 {
     public class StepMotorFactory : IAsyncMotorFactory
     {
-        public async Task<ImmutableList<byte>> FindDeviceAsync(SerialPort port, byte startAddress = 1,
-            byte endAddress = 16)
+        public async Task<ImmutableList<Address>> FindDeviceAsync(SerialPort port,
+            Address? startAddress, Address? endAddress)
         {
+            startAddress ??= Address.DefaultStart;
+            endAddress ??= Address.DefaultEnd;
 
-            var result = ImmutableList.CreateBuilder<byte>();
+            var result = ImmutableList.CreateBuilder<Address>();
 
-            for (var address = startAddress; address <= endAddress; address++)
+            for (var address = startAddress.Value.RawValue; address <= endAddress.Value.RawValue; address++)
             {
                 var motor = new StepMotorHandler(port, address);
                 try
@@ -60,7 +62,7 @@ namespace StepMotor
         }
 
         public async Task<IAsyncMotor> TryCreateFromAddressAsync(
-            SerialPort port, byte address, TimeSpan defaultTimeOut = default)
+            SerialPort port, Address address, TimeSpan defaultTimeOut = default)
         {
             if (port is null)
                 throw new ArgumentNullException(nameof(port));
@@ -86,15 +88,19 @@ namespace StepMotor
         }
 
         public async Task<IAsyncMotor> TryCreateFirstAsync(
-            SerialPort port, byte startAddress = 1, byte endAddress = 16, TimeSpan defaultTimeOut = default)
+            SerialPort port, Address? startAddress, Address? endAddress,
+            TimeSpan defaultTimeOut = default)
         {
+            startAddress ??= Address.DefaultStart;
+            endAddress ??= Address.DefaultEnd;
+
             if (port is null)
                 throw new ArgumentNullException(nameof(port));
             if (startAddress > endAddress)
                 throw new ArgumentOutOfRangeException(
                     $"[{nameof(startAddress)}] should be less than or equal to [{nameof(endAddress)}]");
 
-            for (var address = startAddress; address <= endAddress; address++)
+            for (var address = startAddress.Value.RawValue; address <= endAddress.Value.RawValue; address++)
             {
                 var motor = await TryCreateFromAddressAsync(port, address, defaultTimeOut);
                 if (motor != null)
@@ -106,7 +112,7 @@ namespace StepMotor
 
         public async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
             SerialPort port, byte address,
-            byte startAddress = 1, byte endAddress = 16,
+            Address? startAddress, Address? endAddress,
             TimeSpan defaultTimeOut = default)
             => (await TryCreateFromAddressAsync(port, address, defaultTimeOut)
                 ?? await TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))

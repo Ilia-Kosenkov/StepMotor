@@ -20,6 +20,8 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //     SOFTWARE.
 
+#nullable enable
+
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
@@ -33,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace StepMotor
 {
-    public class StepMotorHandler : IAsyncMotor
+    public sealed class StepMotorHandler : IAsyncMotor
     {
         private static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -65,7 +67,7 @@ namespace StepMotor
         private volatile bool _suppressEvents;
 
         //public string PortName => _port.PortName;
-        public byte Address { get; }
+        public Address Address { get; }
 
         /// <summary>
         /// Fires when data has been received from COM port.
@@ -83,13 +85,15 @@ namespace StepMotor
         /// <param name="defaultTimeOut">Default response timeout.</param>
         /// <param name="address">Device address.</param>
         /// <exception cref="ArgumentOutOfRangeException"/>
-        internal StepMotorHandler(SerialPort port, byte address = 1, TimeSpan defaultTimeOut = default)
+        internal StepMotorHandler(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
         {
+            address ??= Address.DefaultStart;
+
             _timeOut = defaultTimeOut == default
                 ? TimeSpan.FromMilliseconds(300)
                 : defaultTimeOut;
 
-            Address = address;
+            Address = address.Value;
             _port = port; //new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
             // Event listeners
             _port.DataReceived += OnPortDataReceived;
@@ -108,7 +112,7 @@ namespace StepMotor
         }
 
 
-        internal async Task<bool> PokeAddressInBinary(byte address)
+        internal async Task<bool> PokeAddressInBinary(Address address)
         {
             var oldStatus = _suppressEvents;
             try
@@ -133,7 +137,7 @@ namespace StepMotor
 
         }
 
-        internal async Task<bool> SwitchToBinary(byte address)
+        internal async Task<bool> SwitchToBinary(Address address)
         {
             var oldStatus = _suppressEvents;
 
@@ -187,7 +191,7 @@ namespace StepMotor
         /// </summary>
         /// <param name="sender">COM port.</param>
         /// <param name="e">Event arguments.</param>
-        protected void OnPortErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        private void OnPortErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             // Reads last response
             byte[] buffer = null;
@@ -206,7 +210,7 @@ namespace StepMotor
         /// </summary>
         /// <param name="sender">COM port.</param>
         /// <param name="e">Event arguments.</param>
-        protected void OnPortDataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void OnPortDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (_port.BytesToRead <= 0) return;
 
@@ -278,7 +282,7 @@ namespace StepMotor
         /// Used to fire DataReceived event.
         /// </summary>
         /// <param name="e">Event arguments.</param>
-        protected virtual void OnDataReceived(StepMotorEventArgs e)
+        private void OnDataReceived(StepMotorEventArgs e)
         {
             if (!_suppressEvents)
                 DataReceived?.Invoke(this, e);
@@ -287,17 +291,16 @@ namespace StepMotor
         /// Used to fire ErrorReceived event.
         /// </summary>
         /// <param name="e">Event arguments.</param>
-        protected virtual void OnErrorReceived(StepMotorEventArgs e)
+        private void OnErrorReceived(StepMotorEventArgs e)
         {
             if (!_suppressEvents)
                 ErrorReceived?.Invoke(this, e);
         }
 
 
-        protected async Task<Reply> SendCommandAsync(Command command, int argument,
+        private async Task<Reply> SendCommandAsync(Command command, int argument,
             byte type,
-            byte address,
-            byte motorOrBank, TimeSpan timeOut)
+            Address address, MotorBank motorOrBank, TimeSpan timeOut)
         {
 
             // Converts Int32 into byte array. 
@@ -358,7 +361,7 @@ namespace StepMotor
 
         public Task<Reply> SendCommandAsync(
             Command command, int argument,
-            CommandParam param, byte motorOrBank = 0) =>
+            CommandParam param, MotorBank motorOrBank = default) =>
             SendCommandAsync(
                 command,
                 argument,
@@ -384,8 +387,7 @@ namespace StepMotor
         /// </summary>
         /// <param name="motorOrBank">Motor or bank, defaults to 0.</param>
         /// <returns>Retrieved values for each AxisParameter queried.</returns>
-        public async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(
-            byte motorOrBank = 0)
+        public async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default)
         {
             // Stores old state
             var oldState = _suppressEvents;
@@ -401,7 +403,7 @@ namespace StepMotor
                 // Uses explicit conversion of byte to AxisParameter
                 foreach (var param in CommandParam.GeneralAxisParams)
                 {
-                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
                     if (reply.IsSuccess)
                         status.Add(param, reply.ReturnValue);
                 }
@@ -418,7 +420,7 @@ namespace StepMotor
 
         public Task<Reply> MoveToPosition(int position,
             CommandParam.MoveType type = CommandParam.MoveType.Absolute,
-            byte motorOrBank = 0) =>
+            MotorBank motorOrBank = default) =>
             SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank);
 
 
@@ -428,7 +430,7 @@ namespace StepMotor
         /// <param name="motorOrBank">Motor or bank, defaults to 0.</param>
         /// <returns>Retrieved values for each AxisParameter queried.</returns>
         public async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(
-            byte motorOrBank = 0)
+            MotorBank motorOrBank = default)
         {
             // Stores old state
             var oldState = _suppressEvents;
@@ -442,7 +444,7 @@ namespace StepMotor
 
                 foreach (var param in CommandParam.RotationAxisParams)
                 {
-                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param);
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
                     if (reply.IsSuccess)
                         status.Add(param, reply.ReturnValue);
                 }
@@ -458,7 +460,7 @@ namespace StepMotor
             return status.ToImmutable();
         }
 
-        public async Task<int> GetActualPositionAsync(byte motorOrBank = 0)
+        public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(
                 Command.GetAxisParameter,
@@ -471,7 +473,7 @@ namespace StepMotor
             throw new InvalidOperationException("Failed to retrieve value.");
         }
 
-        public async Task<bool> IsTargetPositionReachedAsync(byte motorOrBank = 0)
+        public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(
                 Command.GetAxisParameter,
@@ -482,7 +484,7 @@ namespace StepMotor
             throw new InvalidOperationException("Failed to retrieve value.");
         }
 
-        public async Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, byte motorOrBank = 0)
+        public async Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default)
         {
             token.ThrowIfCancellationRequested();
             var startTime = DateTime.Now;
@@ -512,14 +514,13 @@ namespace StepMotor
             IProgress<(int Current, int Target)> progressReporter,
             CancellationToken token = default,
             TimeSpan timeOut = default,
-            byte motorOrBank = 0)
+            MotorBank motorOrBank = default)
         {
             token.ThrowIfCancellationRequested();
             var startTime = DateTime.Now;
 
             var reply = await SendCommandAsync(
-                Command.GetAxisParameter
-                , 0,
+                Command.GetAxisParameter, 0,
                 CommandParam.AxisParameter.TargetPosition,
                 motorOrBank);
 
@@ -557,7 +558,7 @@ namespace StepMotor
 
         }
 
-        public async Task<bool> IsInMotionAsync(byte motorOrBank = 0)
+        public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(
                 Command.GetAxisParameter,
@@ -570,18 +571,18 @@ namespace StepMotor
             throw new InvalidOperationException("Failed to retrieve value.");
         }
 
-        public async Task StopAsync(byte motorOrBank = 0)
+        public async Task StopAsync(MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(
                 Command.MotorStop,
                 0,
                 CommandParam.RefSearchType.Stop,
-                motorOrBank: motorOrBank);
+                motorOrBank);
             if (!reply.IsSuccess)
                 throw new InvalidOperationException("Failed to retrieve value.");
         }
 
-        public async Task ReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0)
+        public async Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
         {
             token.ThrowIfCancellationRequested();
 
@@ -597,7 +598,7 @@ namespace StepMotor
             await WaitForPositionReachedAsync(token);
         }
 
-        public async Task ReferenceReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0)
+        public async Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Start, motorOrBank);
             if (!reply.IsSuccess)
@@ -624,7 +625,7 @@ namespace StepMotor
 
         }
 
-        public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, byte motorOrBank = 0)
+        public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
             if (reply.IsSuccess)
@@ -653,13 +654,7 @@ namespace StepMotor
 
             if (src.IsCancellationRequested && task.IsFaulted)
                 return task;
-            if (src.IsCancellationRequested)
-                return Task.FromCanceled(src.Token);
-
-            return Task.FromException<TimeoutException>(new TimeoutException());
-
-
-
+            return src.IsCancellationRequested ? Task.FromCanceled(src.Token) : Task.FromException<TimeoutException>(new TimeoutException());
         }
         private static async Task<Reply> WaitResponseAsync(Task<Reply> source, Command command, TimeSpan timeOut = default)
         {
@@ -687,94 +682,7 @@ namespace StepMotor
             //}
             throw new TimeoutException();
 
-
         }
-
-        //public static async Task<ImmutableList<byte>> FindDeviceAsync(SerialPort port, byte startAddress = 1,
-        //    byte endAddress = 16)
-        //{
-
-        //    var result = ImmutableList.CreateBuilder<byte>();
-
-        //    for (var address = startAddress; address <= endAddress; address++)
-        //    {
-        //        var motor = new StepMotorHandler(port, address);
-        //        try
-        //        {
-        //            if (await motor.PokeAddressInBinary(address))
-        //                result.Add(address);
-        //            else
-        //            {
-        //                await motor.SwitchToBinary(address);
-        //                if (await motor.PokeAddressInBinary(address))
-        //                    result.Add(address);
-        //            }
-        //        }
-        //        catch (Exception)
-        //        {
-        //            // Ignored
-        //        }
-        //        finally
-        //        {
-        //            motor.Dispose();
-        //        }
-        //    }
-
-        //    return result.ToImmutable();
-        //}
-
-        //public static async Task<IAsyncMotor> TryCreateFromAddressAsync(
-        //    SerialPort port, byte address, TimeSpan defaultTimeOut = default)
-        //{
-        //    if (port is null)
-        //        throw new ArgumentNullException(nameof(port));
-
-        //    var motor = new StepMotorHandler(port , address, defaultTimeOut);
-
-        //    try
-        //    {
-        //        if (await motor.PokeAddressInBinary(address))
-        //            return motor;
-
-        //        await motor.SwitchToBinary(address);
-        //        if (await motor.PokeAddressInBinary(address))
-        //            return motor;
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // Ignored
-        //    }
-        //    motor.Dispose();
-        //    return null;
-        //}
-
-        //public static async Task<IAsyncMotor> TryCreateFirstAsync(
-        //    SerialPort port, byte startAddress = 1, byte endAddress = 16, TimeSpan defaultTimeOut = default)
-        //{
-        //    if (port is null)
-        //        throw new ArgumentNullException(nameof(port));
-        //    if (startAddress > endAddress)
-        //        throw new ArgumentOutOfRangeException(
-        //            $"[{nameof(startAddress)}] should be less than or equal to [{nameof(endAddress)}]");
-
-        //    for (var address = startAddress; address <= endAddress; address++)
-        //    {
-        //        var motor = await TryCreateFromAddressAsync(port, address, defaultTimeOut);
-        //        if (motor != null)
-        //            return motor;
-        //    }
-
-        //    return null;
-        //}
-
-        //public static async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-        //    SerialPort port, byte address,
-        //    byte startAddress = 1, byte endAddress = 16,
-        //    TimeSpan defaultTimeOut = default)
-        //    => (await TryCreateFromAddressAsync(port, address, defaultTimeOut)
-        //        ?? await TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))
-        //       ?? throw new InvalidOperationException("Failed to connect to step motor.");
     }
 
 }

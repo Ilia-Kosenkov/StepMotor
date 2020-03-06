@@ -20,6 +20,8 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //     SOFTWARE.
 
+#nullable enable
+
 using System;
 using System.Collections.Immutable;
 using System.Threading;
@@ -29,29 +31,27 @@ namespace StepMotor
 {
     public interface IAsyncMotor : IDisposable
     {
-        byte Address { get; }
+        Address Address { get; }
 
-        Task ReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0);
-        Task ReferenceReturnToOriginAsync(CancellationToken token = default, byte motorOrBank = 0);
+        Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
+        Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
 
-        Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default,
-            byte motorOrBank = 0);
+        Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default);
 
         Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter,
-            CancellationToken token = default, TimeSpan timeOut = default, byte motorOrBank = 0);
+            CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default);
 
-        Task<bool> IsTargetPositionReachedAsync(byte motorOrBank = 0);
+        Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
 
-        Task<int> GetActualPositionAsync(byte motorOrBank = 0);
+        Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
-        Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(byte motorOrBank = 0);
+        Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
 
-        Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(byte motorOrBank = 0);
+        Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default);
 
         Task<Reply> MoveToPosition(int position,
-            CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute,
-            byte motorOrBank = 0);
+            CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute, MotorBank motorOrBank = default);
 
-        Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, byte motorOrBank = 0);
+        Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
     }
 }

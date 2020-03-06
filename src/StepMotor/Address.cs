@@ -1,6 +1,6 @@
 ﻿//     MIT License
 //     
-//     Copyright(c) 2018-2019 Ilia Kosenkov
+//     Copyright(c) 2018-2020 Ilia Kosenkov
 //     
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,28 @@
 //     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //     SOFTWARE.
-
 #nullable enable
 
 using System;
-using System.Collections.Immutable;
-using System.IO.Ports;
-using System.Threading.Tasks;
-// ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedMemberInSuper.Global
 
 namespace StepMotor
 {
-    public interface IAsyncMotorFactory
+    public readonly struct Address
     {
-        Task<ImmutableList<Address>> FindDeviceAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null);
+        public static Address DefaultStart { get; } = 1;
+        public static Address DefaultEnd { get; }= 16;
 
-        Task<IAsyncMotor> TryCreateFromAddressAsync(
-            SerialPort port, Address address, TimeSpan defaultTimeOut = default);
+        public byte RawValue { get; }
 
-        Task<IAsyncMotor> TryCreateFirstAsync(
-            SerialPort port, Address? startAddress = null, Address? endAddress = null, TimeSpan defaultTimeOut = default);
+        public Address(byte address) => RawValue = address;
 
-        Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-            SerialPort port, byte address,
-            Address? startAddress = null, Address? endAddress = null,
-            TimeSpan defaultTimeOut = default);
+        public static implicit operator byte(Address address) => address.RawValue;
+        public static implicit operator Address(byte value) => new Address(value);
+
+        public static explicit operator Address(int value)
+            => value >= 0 && value <= byte.MaxValue
+                ? new Address((byte) value)
+                : throw new ArgumentOutOfRangeException(nameof(value));
+
     }
 }

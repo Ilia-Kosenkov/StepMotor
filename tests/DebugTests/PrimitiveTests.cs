@@ -14,7 +14,7 @@ namespace DebugTests
         public async Task Test_Initialization()
         {
             IAsyncMotorFactory factory = new SynchronizedMotorFactory<SynchronizedMotor>();
-            var port = new SerialPort("COM1");
+            var port = new SerialPort("COM4");
             var motor = await factory.TryCreateFromAddressAsync(port, 1, TimeSpan.FromSeconds(2));
             Assert.That(motor, Is.Not.Null);
         }

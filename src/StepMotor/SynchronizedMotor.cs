@@ -194,13 +194,15 @@ namespace StepMotor
             {
                 _taskSource = new TaskCompletionSource<Reply>();
                 Port.WriteLine(command);
-                var result = await ForTask(_taskSource.Task, TimeOut, default);
+                if ((await ForTask(_taskSource.Task, TimeOut, default)).IsSuccess)
+                    return true;
             }
             catch (StepMotorException smEx)
             {
                 if (smEx.RawData?.Length > 0)
                 {
                     var str = Port.Encoding.GetString(smEx.RawData);
+                    
                 }
             }
             catch (Exception e)
@@ -227,6 +229,11 @@ namespace StepMotor
                 
             token.ThrowIfCancellationRequested();
             throw new TimeoutException();
+        }
+
+        private static void CheckIfAsciiResponse(ReadOnlySpan<char> str)
+        {
+
         }
     }
 }

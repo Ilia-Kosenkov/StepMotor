@@ -84,7 +84,7 @@ namespace StepMotor
         {
             static void FillInBytes(byte address, byte command, byte type, byte motorOrBank, int arg, Span<byte> buff)
             {
-                Debug.Assert(buff.Length != ResponseSizeInBytes, "Command buffer is of incorrect size");
+                Debug.Assert(buff.Length == ResponseSizeInBytes, "Command buffer is of incorrect size");
                 buff.Fill(0);
                 buff[0] = address;
                 buff[1] = command;

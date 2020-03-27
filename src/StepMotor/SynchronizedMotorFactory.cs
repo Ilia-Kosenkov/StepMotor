@@ -21,9 +21,16 @@ namespace StepMotor
             var motor = new SynchronizedMotor(port, address, defaultTimeOut);
             try
             {
-                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, address, 0,
-                    defaultTimeOut)).IsSuccess)
-                    return motor;
+                try
+                {
+                    if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, address, 0,
+                        defaultTimeOut)).IsSuccess)
+                        return motor;
+                }
+                catch(TimeoutException)
+                {
+                    // ignore
+                }
 
                 if (await motor.TrySwitchToBinary(address))
                     return motor;

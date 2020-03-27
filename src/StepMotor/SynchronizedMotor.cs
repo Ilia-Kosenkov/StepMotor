@@ -65,6 +65,7 @@ namespace StepMotor
                 var buff = new byte[port.BytesToRead];
                 port.Read(buff, 0, port.BytesToRead);
                 _taskSource?.SetException(new StepMotorException("Unexpected content in the motor's buffer.", buff));
+                return;
             }
 
             var span = _commandBuffer.AsSpan();
@@ -118,6 +119,7 @@ namespace StepMotor
             }
             finally
             {
+                _taskSource = null;
                 _mutex.Release();
             }
 
@@ -202,20 +204,22 @@ namespace StepMotor
                 }
             }
             catch (Exception e)
-            { }
+            {
+            }
             finally
             {
+                _taskSource = null;
                 _mutex.Release();
             }
 
             return false;
         }
 
-        private static async Task<T> ForTask<T>(Task<T> task, TimeSpan timeOut, CancellationToken token)
+        private async Task<T> ForTask<T>(Task<T> task, TimeSpan timeOut, CancellationToken token)
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
             if (timeOut == default)
-                timeOut = TimeSpan.MaxValue;
+                timeOut = TimeOut;
             var result = await Task.WhenAny(task, Task.Delay(timeOut, token));
 
             if (result == task)

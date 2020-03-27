@@ -114,8 +114,8 @@ namespace DebugTests
         {
             var factory = new StepMotorFactory();
             _port = new SerialPort(PortName);
+            _port.DataReceived += (sender, e) => System.Console.WriteLine((sender as SerialPort).BytesToRead);
             _motor = await factory.CreateFirstOrFromAddressAsync(_port, 1);
-
         }
 
         [TearDown]

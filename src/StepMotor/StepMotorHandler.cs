@@ -63,7 +63,7 @@ namespace StepMotor
         }
 
 
-        internal async Task<bool> PokeAddressInBinary(Address address)
+        internal async Task<bool> PokeAddressInBinary()
         {
             var oldStatus = _suppressEvents;
             try
@@ -73,7 +73,7 @@ namespace StepMotor
                 var result = await SendCommandAsync(
                     Command.GetAxisParameter,
                     1, CommandParam.Default,
-                    address, 0, TimeOut);
+                    Address, 0, TimeOut);
 
                 return result.IsSuccess;
             }
@@ -88,7 +88,7 @@ namespace StepMotor
 
         }
 
-        internal async Task<bool> SwitchToBinary(Address address)
+        public override async Task<bool> TrySwitchToBinary()
         {
             var oldStatus = _suppressEvents;
 
@@ -98,7 +98,7 @@ namespace StepMotor
                 Port.WriteLine("");
                 await Task.Delay(TimeOut);
 
-                var addrStr = ((char)(address - 1 + 'A')).ToString();
+                var addrStr = ((char)(Address - 1 + 'A')).ToString();
 
                 var command = $"{addrStr} BIN";
                 var taskSrc = new TaskCompletionSource<Reply>();

@@ -33,15 +33,6 @@ namespace StepMotor
     {
         Address Address { get; }
 
-        /// <summary>
-        /// Fires when data has been received from COM port.
-        /// </summary>
-        event StepMotorEventHandler? DataReceived;
-        /// <summary>
-        /// Fires when error data has been received from COM port.
-        /// </summary>
-        event StepMotorEventHandler? ErrorReceived;
-
         Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
         Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
 
@@ -62,5 +53,11 @@ namespace StepMotor
             CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute, MotorBank motorOrBank = default);
 
         Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
+
+        Task<bool> TrySwitchToBinary();
+
+        Task<Reply> SendCommandAsync(
+            Command command, int argument,
+            CommandParam param, MotorBank motorOrBank = default);
     }
 }

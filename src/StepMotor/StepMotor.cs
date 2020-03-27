@@ -270,6 +270,7 @@ namespace StepMotor
         public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
         public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default);
 
+        public abstract Task<bool> TrySwitchToBinary();
 
 
         public virtual void Dispose() { }

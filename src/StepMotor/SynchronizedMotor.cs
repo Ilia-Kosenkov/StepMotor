@@ -182,12 +182,12 @@ namespace StepMotor
             base.Dispose();
         }
 
-        internal async Task<bool> TrySwitchToBinary(Address address)
+        public override async Task<bool> TrySwitchToBinary()
         {
             Port.WriteLine("");
             await Task.Delay(TimeOut);
 
-            var addrStr = ((char)(address - 1 + 'A'));
+            var addrStr = ((char)(Address - 1 + 'A'));
             var command = $"{addrStr} BIN";
             await _mutex.WaitAsync();
             try

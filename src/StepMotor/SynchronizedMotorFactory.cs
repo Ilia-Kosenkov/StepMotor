@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace StepMotor
 {
-    public class SynchronizedMotorFactory : IAsyncMotorFactory
+    public class SynchronizedMotorFactory<T> : IAsyncMotorFactory where T : StepMotor
     {
+
         public async Task<ImmutableList<Address>> FindDeviceAsync(
             SerialPort port, Address? startAddress = null, Address? endAddress = null)
         {
@@ -18,10 +19,10 @@ namespace StepMotor
 
             for (var address = startAddress.Value.RawValue; address <= endAddress.Value.RawValue; address++)
             {
-                var motor = new SynchronizedMotor(port, address);
+                var motor = CreateMotor(port, address, default);
                 try
                 {
-                    if(await CheckMotorStatus(motor, address, default))
+                    if(await CheckMotorStatus(motor))
                         result.Add(address);
                 }
                 catch (Exception)
@@ -42,8 +43,8 @@ namespace StepMotor
         {
             _ = port ?? throw new ArgumentNullException(nameof(port));
 
-            var motor = new SynchronizedMotor(port, address, defaultTimeOut);
-            if (await CheckMotorStatus(motor, address, defaultTimeOut))
+            var motor = CreateMotor(port, address, defaultTimeOut);
+            if (await CheckMotorStatus(motor))
                 return motor;
 
             await motor.DisposeAsync();
@@ -74,12 +75,11 @@ namespace StepMotor
                 ?? await TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))
                ?? throw new InvalidOperationException("Failed to connect to step motor.");
 
-        private static async Task<bool> CheckMotorStatus(SynchronizedMotor motor, Address address, TimeSpan timeOut)
+        private static async Task<bool> CheckMotorStatus(IAsyncMotor motor)
         {
             try
             {
-                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, address, 0,
-                    timeOut)).IsSuccess)
+                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, 0)).IsSuccess)
                     return true;
             }
             catch (TimeoutException)
@@ -93,7 +93,7 @@ namespace StepMotor
 
             try
             {
-                if (await motor.TrySwitchToBinary(address))
+                if (await motor.TrySwitchToBinary())
                     return true;
             }
             catch (Exception)
@@ -104,5 +104,16 @@ namespace StepMotor
             return false;
         }
 
+
+        private static IAsyncMotor CreateMotor(SerialPort port, Address address, TimeSpan timeOut)
+        {
+            var ctor = typeof(T).GetConstructor(new[] {typeof(SerialPort), typeof(Address), typeof(TimeSpan)});
+            if (ctor is null)
+                throw new InvalidOperationException($"Type {typeof(T).Name} does not have specific constructor.");
+
+            return ctor.Invoke(new object[] {port, address, timeOut}) as IAsyncMotor
+                   ?? throw new InvalidOperationException(
+                       $"Type mismatch: {typeof(T).Name} does not implement {typeof(IAsyncMotor).Name}");
+        }
     }
 }

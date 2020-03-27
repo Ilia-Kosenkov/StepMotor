@@ -47,7 +47,10 @@ namespace StepMotor
 
             var motor = CreateMotor(port, address, defaultTimeOut);
             if (await CheckMotorStatus(motor))
+            {
+                await motor.ReturnToOriginAsync();
                 return motor;
+            }
 
             await motor.DisposeAsync();
             return null;

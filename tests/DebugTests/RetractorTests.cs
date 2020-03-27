@@ -43,7 +43,7 @@ namespace DebugTests
         public void SetUp()
         {
             //_factory = new StepMotorFactory();
-            _factory = new SynchronizedMotorFactory<StepMotorHandler>();
+            _factory = new SynchronizedMotorFactory<SynchronizedMotor>();
         }
 
         [TearDown]
@@ -114,7 +114,7 @@ namespace DebugTests
         public async Task SetUp()
         {
             //var factory = new StepMotorFactory();
-            var factory = new SynchronizedMotorFactory<StepMotorHandler>();
+            var factory = new SynchronizedMotorFactory<SynchronizedMotor>();
             _port = new SerialPort(PortName);
             _motor = await factory.CreateFirstOrFromAddressAsync(_port, 1);
         }

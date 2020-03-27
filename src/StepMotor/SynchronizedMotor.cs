@@ -36,7 +36,7 @@ namespace StepMotor
     public class SynchronizedMotor : StepMotor
     {
         private readonly byte[] _commandBuffer = new byte[ResponseSizeInBytes];
-        private readonly SemaphoreSlim _mutex = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _mutex = new SemaphoreSlim(1, 1);
         private TaskCompletionSource<Reply>? _taskSource;
 
         internal SynchronizedMotor(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
@@ -115,6 +115,8 @@ namespace StepMotor
                 _taskSource = new TaskCompletionSource<Reply>();
                 // Sends data to COM port
                 Port.Write(_commandBuffer, 0, _commandBuffer.Length);
+                //await Task.Delay(TimeOut);
+                await Task.Yield();
                 return await ForTask(_taskSource.Task, timeOut, token);
             }
             finally
@@ -223,11 +225,16 @@ namespace StepMotor
         private async Task<T> ForTask<T>(Task<T> task, TimeSpan timeOut, CancellationToken token)
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
-            if (timeOut == default)
-                timeOut = TimeOut;
-            var result = await Task.WhenAny(task, Task.Delay(timeOut, token));
 
-            if (result == task)
+            // Remove
+            Console.WriteLine(timeOut);
+
+            if (timeOut == default && token == default)
+                return await task;
+
+            var controller = Task.Delay(timeOut, token);
+
+            if (await Task.WhenAny(task, controller) == task)
                 return await task;
                 
             token.ThrowIfCancellationRequested();

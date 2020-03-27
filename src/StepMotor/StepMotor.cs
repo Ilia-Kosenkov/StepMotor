@@ -58,7 +58,7 @@ namespace StepMotor
 
             if (!Port.IsOpen)
             {
-                Port.ReceivedBytesThreshold = ResponseSizeInBytes;
+                //Port.ReceivedBytesThreshold = ResponseSizeInBytes;
                 // Creates port
                 Port.BaudRate = 9600;
                 Port.Parity = Parity.None;
@@ -113,8 +113,10 @@ namespace StepMotor
         {
             var reply = await SendCommandAsync(
                 Command.GetAxisParameter,
-                0, CommandParam.AxisParameter.TargetPositionReached,
-                motorOrBank);
+                0,  (byte) CommandParam.AxisParameter.TargetPositionReached,
+                Address,
+                motorOrBank,
+                default);
             if (reply.IsSuccess)
                 return reply.ReturnValue == 1;
             throw new InvalidOperationException("Failed to retrieve value.");
@@ -231,8 +233,10 @@ namespace StepMotor
 
             var reply = await SendCommandAsync(
                 Command.MoveToPosition,
-                0, CommandParam.MoveType.Absolute,
-                motorOrBank);
+                0, (byte)CommandParam.MoveType.Absolute,
+                Address,
+                motorOrBank,
+                default);
             if (!reply.IsSuccess)
                 throw new InvalidOperationException("Failed to return to the origin.");
 

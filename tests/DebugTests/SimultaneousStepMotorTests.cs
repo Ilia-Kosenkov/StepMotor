@@ -44,7 +44,7 @@ namespace DebugTests
         public async Task SetUp()
         {
             //var factory = new StepMotorFactory();
-            var factory = new SynchronizedMotorFactory<StepMotorHandler>();
+            var factory = new SynchronizedMotorFactory<SynchronizedMotor>();
             _port1 = new SerialPort(@"COM1");
             _port2 = new SerialPort(@"COM4");
 

@@ -42,7 +42,7 @@ namespace DebugTests
             var ports = SerialPort.GetPortNames();
 
             //var factory = new StepMotorFactory();
-            var factory = new SynchronizedMotorFactory<StepMotorHandler>();
+            var factory = new SynchronizedMotorFactory<SynchronizedMotor>();
 
             var devices =
                 await Task.WhenAll(ports.Select(x => new SerialPort(x)).Select(async x => (Port: x, Addresses: await factory.FindDeviceAsync(x))));
@@ -63,8 +63,8 @@ namespace DebugTests
         public async Task SetUp()
         {
             _port = new SerialPort("COM1");
-            _motor = await new SynchronizedMotorFactory<StepMotorHandler>().CreateFirstOrFromAddressAsync(_port, 1) as StepMotorHandler;
-            _motor.ReturnToOriginAsync().GetAwaiter().GetResult();
+            _motor = await new SynchronizedMotorFactory<SynchronizedMotor>().CreateFirstOrFromAddressAsync(_port, 1);
+            await _motor.ReturnToOriginAsync();
         }
 
         [TearDown]
@@ -131,7 +131,9 @@ namespace DebugTests
             // Rotates to target position
             var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
             Assume.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
-            Assert.That(async() => await _motor.WaitForPositionReachedAsync(CancellationToken.None), Throws.Nothing);
+            Assert.That(async () => await _motor.WaitForPositionReachedAsync(CancellationToken.None), Throws.Nothing);
+
+            //await _motor.WaitForPositionReachedAsync();
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
             Assert.AreEqual(pos, await _motor.GetActualPositionAsync());

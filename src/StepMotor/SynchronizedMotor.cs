@@ -199,14 +199,13 @@ namespace StepMotor
             }
             catch (StepMotorException smEx)
             {
-                if (smEx.RawData?.Length > 0)
-                {
-                    var str = Port.Encoding.GetString(smEx.RawData);
-                    
-                }
-            }
-            catch (Exception e)
-            {
+                if (smEx.RawData?.Length > 0 && CheckIfAsciiResponse(
+                        command.AsSpan(),
+                        Port.Encoding.GetString(smEx.RawData).AsSpan(),
+                        addrStr,
+                        Port.NewLine.AsSpan()))
+                    return true;
+
             }
             finally
             {
@@ -231,9 +230,29 @@ namespace StepMotor
             throw new TimeoutException();
         }
 
-        private static void CheckIfAsciiResponse(ReadOnlySpan<char> str)
+        private static bool CheckIfAsciiResponse(
+            ReadOnlySpan<char> command,
+            ReadOnlySpan<char> response,
+            char address,
+            ReadOnlySpan<char> newLine)
         {
+            // Response is too short
+            if (response.Length < command.Length + newLine.Length + 4)
+                return false;
 
+            // First part should be equal to command
+            if (!response.Slice(0, command.Length).SequenceEqual(command))
+                return false;
+
+            // Then new line
+            if (!response.Slice(command.Length, newLine.Length).SequenceEqual(newLine))
+                return false;
+
+            var actualResponse = response.Slice(command.Length + newLine.Length);
+            
+            // Then address of the host and address of the motor, like `BA`
+            // If it does not match, then response is incorrect
+            return char.IsLetter(actualResponse[0]) && actualResponse[1] == address;
         }
     }
 }

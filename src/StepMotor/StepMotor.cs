@@ -66,6 +66,8 @@ namespace StepMotor
                 Port.StopBits = StopBits.One;
                 Port.Open();
             }
+            Port.DiscardInBuffer();
+            Port.DiscardOutBuffer();
         }
 
         public abstract Task<Reply> SendCommandAsync(

@@ -28,51 +28,23 @@ using System.Buffers.Binary;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 
 namespace StepMotor
 {
-    public class SynchronizedMotor : IAsyncMotor
+    public class SynchronizedMotor : StepMotor
     {
-        private const int ResponseSizeInBytes = 9;
-
-        private const int SpeedFactor = 30;
-
-        private readonly SerialPort _port;
-        private readonly TimeSpan _timeOut;
         private readonly byte[] _commandBuffer = new byte[ResponseSizeInBytes];
         private readonly SemaphoreSlim _mutex = new SemaphoreSlim(1);
-        private TaskCompletionSource<Reply> _taskSource;
-        public Address Address { get; }
-        public event StepMotorEventHandler? DataReceived;
-        public event StepMotorEventHandler? ErrorReceived;
+        private TaskCompletionSource<Reply>? _taskSource;
 
         public SynchronizedMotor(SerialPort port, Address address, TimeSpan defaultTimeOut = default)
+            : base(port, address, defaultTimeOut)
         {
-            _port = port ?? throw new ArgumentNullException(nameof(port));
-            Address = address;
-            _timeOut = defaultTimeOut == default
-                ? TimeSpan.FromMilliseconds(300)
-                : defaultTimeOut;
-
             // Event listeners
             // Not sure if needed
-            _port.DataReceived += Port_DataReceived;
-            //_port.ErrorReceived += Port_ErrorReceived;
-            _port.NewLine = "\r";
-
-            if (!_port.IsOpen)
-            {
-                // Creates port
-                _port.BaudRate = 9600;
-                _port.Parity = Parity.None;
-                _port.DataBits = 8;
-                _port.StopBits = StopBits.One;
-                _port.Open();
-            }
+            Port.DataReceived += Port_DataReceived;
         }
 
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -104,9 +76,9 @@ namespace StepMotor
             }
         }
 
-        private async Task<Reply> SendCommandAsync(
+        public override async Task<Reply> SendCommandAsync(
             Command command, int argument, byte type,
-            Address address, MotorBank motorOrBank, 
+            Address address, MotorBank motorOrBank,
             TimeSpan timeOut, CancellationToken token = default)
         {
             static void FillInBytes(byte address, byte command, byte type, byte motorOrBank, int arg, Span<byte> buff)
@@ -120,11 +92,12 @@ namespace StepMotor
                 BinaryPrimitives.WriteInt32BigEndian(buff.Slice(4), arg);
 
                 byte sum = 0;
-                unchecked 
+                unchecked
                 {
                     foreach (var item in buff.Slice(0, ResponseSizeInBytes - 1))
                         sum += item;
                 }
+
                 buff[ResponseSizeInBytes - 1] = sum;
             }
 
@@ -140,7 +113,7 @@ namespace StepMotor
                 FillInBytes(address, (byte) command, type, motorOrBank, argument, _commandBuffer);
                 _taskSource = new TaskCompletionSource<Reply>();
                 // Sends data to COM port
-                _port.Write(_commandBuffer, 0, _commandBuffer.Length);
+                Port.Write(_commandBuffer, 0, _commandBuffer.Length);
                 return await ForTask(_taskSource.Task, timeOut, token);
             }
             finally
@@ -152,65 +125,56 @@ namespace StepMotor
             //return await WaitResponseAsync(responseTaskSource.Task, command, timeOut);
         }
 
-        public Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default,
+        public override async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(
             MotorBank motorOrBank = default)
         {
-            throw new NotImplementedException();
+            var builder = ImmutableDictionary.CreateBuilder<CommandParam.AxisParameter, int>();
+
+            // For each basic Axis Parameter queries its value
+            // Uses explicit conversion of byte to AxisParameter
+            foreach (var param in CommandParam.GeneralAxisParams)
+            {
+                try
+                {
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
+                    if (reply.IsSuccess)
+                        builder.Add(param, reply.ReturnValue);
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+            return builder.ToImmutable();
         }
 
-        public Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter, CancellationToken token = default,
-            TimeSpan timeOut = default, MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Reply> MoveToPosition(int position, CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute,
+        public override async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(
             MotorBank motorOrBank = default)
         {
-            throw new NotImplementedException();
+            var builder = ImmutableDictionary.CreateBuilder<CommandParam.AxisParameter, int>();
+
+            // For each basic Axis Parameter queries its value
+            // Uses explicit conversion of byte to AxisParameter
+            foreach (var param in CommandParam.RotationAxisParams)
+            {
+                try
+                {
+                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
+                    if (reply.IsSuccess)
+                        builder.Add(param, reply.ReturnValue);
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+            return builder.ToImmutable();
         }
 
-        public Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
-        {
-            throw new NotImplementedException();
-        }
 
-        public ValueTask DisposeAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
+        public  override void Dispose()
         {
             throw new NotImplementedException();
         }

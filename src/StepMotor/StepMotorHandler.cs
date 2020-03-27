@@ -35,150 +35,10 @@ using System.Threading.Tasks;
 
 namespace StepMotor
 {
-    public abstract class StepMotor : IAsyncMotor
-    {
-        protected const int ResponseSizeInBytes = 9;
-        protected const int SpeedFactor = 30;
-
-        protected static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        
-        public event StepMotorEventHandler? DataReceived;
-        public event StepMotorEventHandler? ErrorReceived;
-
-        public Address Address { get; }
-        protected readonly SerialPort _port;
-
-        protected readonly TimeSpan _timeOut;
-
-        protected internal StepMotor(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
-        {
-            address ??= Address.DefaultStart;
-
-            _timeOut = defaultTimeOut == default
-                ? TimeSpan.FromMilliseconds(300)
-                : defaultTimeOut;
-
-            Address = address.Value;
-            _port = port; //new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
-            // Event listeners
-            _port.NewLine = "\r";
-
-            if (!_port.IsOpen)
-            {
-                // Creates port
-                _port.BaudRate = 9600;
-                _port.Parity = Parity.None;
-                _port.DataBits = 8;
-                _port.StopBits = StopBits.One;
-                _port.Open();
-            }
-        }
-
-        public abstract Task<Reply> SendCommandAsync(
-            Command command, int argument, byte type,
-            Address address, MotorBank motorOrBank,
-            TimeSpan timeOut, CancellationToken token = default);
-
-        public virtual Task<Reply> SendCommandAsync(
-            Command command, int argument,
-            CommandParam param, MotorBank motorOrBank = default) =>
-            SendCommandAsync(
-                command,
-                argument,
-                param,
-                Address,
-                motorOrBank,
-                _timeOut);
-
-        protected virtual void OnDataReceived(StepMotorEventArgs e) 
-            => DataReceived?.Invoke(this, e);
-
-        protected virtual void OnErrorReceived(StepMotorEventArgs e) 
-            => ErrorReceived?.Invoke(this, e);
-        public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,
-                CommandParam.AxisParameter.ActualPosition,
-                motorOrBank);
-
-            if (reply.IsSuccess)
-                return reply.ReturnValue;
-            throw new InvalidOperationException("Failed to retrieve value.");
-        }
-        public Task<Reply> MoveToPosition(int position,
-            CommandParam.MoveType type = CommandParam.MoveType.Absolute,
-            MotorBank motorOrBank = default) =>
-            SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank);
-
-
-        public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0, CommandParam.AxisParameter.TargetPositionReached,
-                motorOrBank);
-            if (reply.IsSuccess)
-                return reply.ReturnValue == 1;
-            throw new InvalidOperationException("Failed to retrieve value.");
-        }
-
-        public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,
-                CommandParam.AxisParameter.ActualSpeed,
-                motorOrBank);
-
-            if (reply.IsSuccess)
-                return reply.ReturnValue != 0;
-            throw new InvalidOperationException("Failed to retrieve value.");
-        }
-
-
-        public async Task StopAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.MotorStop,
-                0,
-                CommandParam.RefSearchType.Stop,
-                motorOrBank);
-            if (!reply.IsSuccess)
-                throw new InvalidOperationException("Failed to retrieve value.");
-        }
-
-
-        public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
-            if (reply.IsSuccess)
-                return reply.ReturnValue;
-            throw new InvalidOperationException($"{nameof(Command.GetAxisParameter)} failed to retrieve parameter.");
-        }
-
-        public abstract Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
-        public abstract Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
-
-        public abstract Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default,
-            MotorBank motorOrBank = default);
-
-        public abstract Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter, CancellationToken token = default,
-            TimeSpan timeOut = default, MotorBank motorOrBank = default);
-
-        public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
-        public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default);
-
-
-
-        public abstract void Dispose();
-        public abstract ValueTask DisposeAsync();
-    }
-
     public sealed class StepMotorHandler : StepMotor
     {
+        protected static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly ConcurrentQueue<TaskCompletionSource<Reply>> _responseWaitQueue
             = new ConcurrentQueue<TaskCompletionSource<Reply>>();
 
@@ -186,8 +46,6 @@ namespace StepMotor
         /// Used to suppress public events while performing WaitResponse.
         /// </summary>
         private volatile bool _suppressEvents;
-
-        //public string PortName => _port.PortName;
 
         /// <summary>
         /// Default constructor
@@ -200,8 +58,8 @@ namespace StepMotor
             :base(port, address, defaultTimeOut)
         {
             // Event listeners
-            _port.DataReceived += Port_DataReceived;
-            _port.ErrorReceived += Port_ErrorReceived;
+            Port.DataReceived += Port_DataReceived;
+            Port.ErrorReceived += Port_ErrorReceived;
         }
 
 
@@ -215,7 +73,7 @@ namespace StepMotor
                 var result = await SendCommandAsync(
                     Command.GetAxisParameter,
                     1, CommandParam.Default,
-                    address, 0, _timeOut);
+                    address, 0, TimeOut);
 
                 return result.IsSuccess;
             }
@@ -237,24 +95,24 @@ namespace StepMotor
             try
             {
                 _suppressEvents = true;
-                _port.WriteLine("");
-                await Task.Delay(_timeOut);
+                Port.WriteLine("");
+                await Task.Delay(TimeOut);
 
                 var addrStr = ((char)(address - 1 + 'A')).ToString();
 
                 var command = $"{addrStr} BIN";
                 var taskSrc = new TaskCompletionSource<Reply>();
                 _responseWaitQueue.Enqueue(taskSrc);
-                _port.WriteLine(command);
+                Port.WriteLine(command);
                 try
                 {
-                    await WaitTimeOut(taskSrc.Task, _timeOut);
+                    await WaitTimeOut(taskSrc.Task, TimeOut);
                 }
                 catch (StepMotorException exception)
                 {
                     if (exception.RawData != null && exception.RawData.Length > 0)
                     {
-                        var result = Regex.Match(_port.Encoding.GetString(exception.RawData));
+                        var result = Regex.Match(Port.Encoding.GetString(exception.RawData));
 
                         if (result.Groups.Count == 4
                             && result.Groups[1].Value == addrStr
@@ -277,25 +135,11 @@ namespace StepMotor
 
         }
 
-
-
-        /// <summary>
-        /// Handles internal COM port ErrorReceived.
-        /// </summary>
-        /// <param name="sender">COM port.</param>
-        /// <param name="e">Event arguments.</param>
-        
-
-        /// <summary>
-        /// Handles internal COM port DataReceived.
-        /// </summary>
-        /// <param name="sender">COM port.</param>
-        /// <param name="e">Event arguments.</param>
         private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (_port.BytesToRead < ResponseSizeInBytes) return;
+            if (Port.BytesToRead < ResponseSizeInBytes) return;
 
-            var len = _port.BytesToRead;
+            var len = Port.BytesToRead;
             
             TaskCompletionSource<Reply> taskSrc;
 
@@ -308,7 +152,7 @@ namespace StepMotor
             try
             {
                 pool = ArrayPool<byte>.Shared.Rent(Math.Max(ResponseSizeInBytes, len));
-                _port.Read(pool, 0, len);
+                Port.Read(pool, 0, len);
 
                 if (len == ResponseSizeInBytes)
                 {
@@ -351,8 +195,8 @@ namespace StepMotor
             // Reads last response
             byte[]? buffer = null;
 
-            if (_port.BytesToRead > 0)
-                buffer = new byte[_port.BytesToRead];
+            if (Port.BytesToRead > 0)
+                buffer = new byte[Port.BytesToRead];
 
             while (_responseWaitQueue.TryDequeue(out var taskSrc))
                 taskSrc.SetException(new InvalidOperationException(@"Step motor returned an error."));
@@ -417,37 +261,21 @@ namespace StepMotor
             var responseTaskSource = new TaskCompletionSource<Reply>();
             _responseWaitQueue.Enqueue(responseTaskSource);
             // Sends data to COM port
-            _port.Write(toSend, 0, toSend.Length);
+            Port.Write(toSend, 0, toSend.Length);
 
             // Wait for response
             return await WaitResponseAsync(responseTaskSource.Task, command, timeOut);
         }
 
-
-
-
-        /// <summary>
-        /// Implements interface and frees resources
-        /// </summary>
         public override void Dispose()
         {
             while (_responseWaitQueue.TryDequeue(out var taskSrc) && taskSrc?.Task.IsCanceled == false)
                 taskSrc.SetException(new ObjectDisposedException(nameof(StepMotorHandler)));
-            _port.DataReceived -= Port_DataReceived;
-            _port.ErrorReceived -= Port_ErrorReceived;
+            Port.DataReceived -= Port_DataReceived;
+            Port.ErrorReceived -= Port_ErrorReceived;
+            base.Dispose();
         }
-
-        public override ValueTask DisposeAsync()
-        {
-            Dispose();
-            return default;
-        }
-
-        /// <summary>
-        /// Queries status of all Axis parameters.
-        /// </summary>
-        /// <param name="motorOrBank">Motor or bank, defaults to 0.</param>
-        /// <returns>Retrieved values for each AxisParameter queried.</returns>
+        
         public override async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default)
         {
             // Stores old state
@@ -480,12 +308,6 @@ namespace StepMotor
         }
 
 
-
-        /// <summary>
-        /// Queries status of essential Axis parameters.
-        /// </summary>
-        /// <param name="motorOrBank">Motor or bank, defaults to 0.</param>
-        /// <returns>Retrieved values for each AxisParameter queried.</returns>
         public override async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(
             MotorBank motorOrBank = default)
         {
@@ -517,130 +339,7 @@ namespace StepMotor
             return status.ToImmutable();
         }
 
-       
-
-
-        public override async Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default)
-        {
-            token.ThrowIfCancellationRequested();
-            var startTime = DateTime.Now;
-
-            if (!await IsTargetPositionReachedAsync(motorOrBank))
-            {
-                token.ThrowIfCancellationRequested();
-                var status = await GetRotationStatusAsync(motorOrBank);
-                var delayMs = Math.Max(
-                    250 * Math.Abs(status[CommandParam.AxisParameter.TargetPosition] - status[CommandParam.AxisParameter.ActualPosition]) /
-                    (SpeedFactor * status[CommandParam.AxisParameter.MaximumSpeed]),
-                    500);
-
-                while (!await IsTargetPositionReachedAsync(motorOrBank))
-                {
-                    token.ThrowIfCancellationRequested();
-                    if (timeOut != default && (DateTime.Now - startTime) > timeOut)
-                        throw new TimeoutException();
-                    await Task.Delay(delayMs, token);
-                }
-
-            }
-
-        }
-
-        public override async Task WaitForPositionReachedAsync(
-            IProgress<(int Current, int Target)> progressReporter,
-            CancellationToken token = default,
-            TimeSpan timeOut = default,
-            MotorBank motorOrBank = default)
-        {
-            token.ThrowIfCancellationRequested();
-            var startTime = DateTime.Now;
-
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter, 0,
-                CommandParam.AxisParameter.TargetPosition,
-                motorOrBank);
-
-            if (!reply.IsSuccess)
-                throw new InvalidOperationException("Filed to query target position.");
-
-            var target = reply.ReturnValue;
-            var current = await GetActualPositionAsync(motorOrBank);
-
-            progressReporter?.Report((current, target));
-
-            if (!await IsTargetPositionReachedAsync(motorOrBank))
-            {
-                token.ThrowIfCancellationRequested();
-                var status = await GetRotationStatusAsync(motorOrBank);
-                var delayMs = Math.Max(
-                    125 * Math.Abs(status[CommandParam.AxisParameter.TargetPosition] - status[CommandParam.AxisParameter.ActualPosition]) /
-                    (SpeedFactor * status[CommandParam.AxisParameter.MaximumSpeed]),
-                    250);
-
-                while (!await IsTargetPositionReachedAsync(motorOrBank))
-                {
-                    token.ThrowIfCancellationRequested();
-                    if (timeOut != default && (DateTime.Now - startTime) > timeOut)
-                        throw new TimeoutException();
-                    await Task.Delay(delayMs, token);
-                    current = await GetActualPositionAsync(motorOrBank);
-                    progressReporter?.Report((current, target));
-                }
-
-            }
-
-            current = await GetActualPositionAsync(motorOrBank);
-            progressReporter?.Report((current, target));
-
-        }
-
-
-
-
-        public override async Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
-        {
-            token.ThrowIfCancellationRequested();
-
-            var reply = await SendCommandAsync(
-                Command.MoveToPosition,
-                0, CommandParam.MoveType.Absolute,
-                motorOrBank);
-            if (!reply.IsSuccess)
-                throw new InvalidOperationException("Failed to return to the origin.");
-
-            token.ThrowIfCancellationRequested();
-
-            await WaitForPositionReachedAsync(token);
-        }
-
-        public override async Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Start, motorOrBank);
-            if (!reply.IsSuccess)
-                throw new InvalidOperationException("Failed to start reference search.");
-
-            if (token.IsCancellationRequested)
-            {
-                await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop, motorOrBank);
-                token.ThrowIfCancellationRequested();
-            }
-            var deltaMs = 200;
-
-            while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Status, motorOrBank))
-                   .IsSuccess
-                   && reply.ReturnValue != 0)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop, motorOrBank);
-                    token.ThrowIfCancellationRequested();
-                }
-                await Task.Delay(deltaMs, token);
-            }
-
-        }
-
-
+        
         private static Task WaitTimeOut(Task task, TimeSpan timeOut = default, CancellationToken token = default)
         {
             if (timeOut == default)

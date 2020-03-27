@@ -194,6 +194,7 @@ namespace StepMotor
             {
                 _taskSource = new TaskCompletionSource<Reply>();
                 Port.WriteLine(command);
+                Port.DiscardOutBuffer();
                 var result = await ForTask(_taskSource.Task, TimeOut, default);
             }
             catch (StepMotorException smEx)

@@ -58,6 +58,7 @@ namespace StepMotor
 
             if (!Port.IsOpen)
             {
+                Port.ReceivedBytesThreshold = ResponseSizeInBytes;
                 // Creates port
                 Port.BaudRate = 9600;
                 Port.Parity = Parity.None;

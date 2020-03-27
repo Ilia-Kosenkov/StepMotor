@@ -75,12 +75,12 @@ namespace StepMotor
             }
         }
 
-        protected abstract Task<Reply> SendCommandAsync(
+        public abstract Task<Reply> SendCommandAsync(
             Command command, int argument, byte type,
             Address address, MotorBank motorOrBank,
             TimeSpan timeOut, CancellationToken token = default);
 
-        protected virtual Task<Reply> SendCommandAsync(
+        public virtual Task<Reply> SendCommandAsync(
             Command command, int argument,
             CommandParam param, MotorBank motorOrBank = default) =>
             SendCommandAsync(
@@ -361,7 +361,7 @@ namespace StepMotor
         }
 
 
-        protected override async Task<Reply> SendCommandAsync(
+        public override async Task<Reply> SendCommandAsync(
             Command command, int argument, byte type,
             Address address, MotorBank motorOrBank, 
             TimeSpan timeOut, CancellationToken token = default)

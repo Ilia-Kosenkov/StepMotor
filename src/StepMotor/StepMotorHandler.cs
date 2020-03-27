@@ -37,7 +37,7 @@ namespace StepMotor
 {
     public sealed class StepMotorHandler : StepMotor
     {
-        protected static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
+        private static readonly Regex Regex = new Regex(@"[a-z]([a-z])\s*(\d{1,3})\s*(.*)\r",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly ConcurrentQueue<TaskCompletionSource<Reply>> _responseWaitQueue
             = new ConcurrentQueue<TaskCompletionSource<Reply>>();

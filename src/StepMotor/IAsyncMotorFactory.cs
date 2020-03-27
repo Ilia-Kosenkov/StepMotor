@@ -35,10 +35,10 @@ namespace StepMotor
     {
         Task<ImmutableList<Address>> FindDeviceAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null);
 
-        Task<IAsyncMotor> TryCreateFromAddressAsync(
+        Task<IAsyncMotor?> TryCreateFromAddressAsync(
             SerialPort port, Address address, TimeSpan defaultTimeOut = default);
 
-        Task<IAsyncMotor> TryCreateFirstAsync(
+        Task<IAsyncMotor?> TryCreateFirstAsync(
             SerialPort port, Address? startAddress = null, Address? endAddress = null, TimeSpan defaultTimeOut = default);
 
         Task<IAsyncMotor> CreateFirstOrFromAddressAsync(

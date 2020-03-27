@@ -269,7 +269,7 @@ namespace StepMotor
 
 
 
-        public virtual void Dispose() => Port.Close();
+        public virtual void Dispose() { }
         public virtual ValueTask DisposeAsync()
         {
             Dispose();

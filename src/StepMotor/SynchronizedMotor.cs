@@ -55,25 +55,25 @@ namespace StepMotor
             if (port.BytesToRead < ResponseSizeInBytes)
                 return;
 
+            if (port.BytesToRead > ResponseSizeInBytes)
+            {
+                // This should not happen as step motors through out 
+                // `ResponseSizeInBytes` bytes after each command.
+                // If response is larger, something went wrong, or interfering,
+                // or there is an unexpected race condition.
+                // Rare case, no need for optimization
+                var buff = new byte[port.BytesToRead];
+                port.Read(buff, 0, port.BytesToRead);
+                _taskSource?.SetException(new StepMotorException("Unexpected content in the motor's buffer.", buff));
+            }
+
             var span = _commandBuffer.AsSpan();
 
             span.Fill(0);
             port.Read(_commandBuffer, 0, ResponseSizeInBytes);
             var reply = new Reply(_commandBuffer);
-            _taskSource?.SetResult(reply);
             span.Fill(0);
-
-            // This should not happen as step motors through out 
-            // `ResponseSizeInBytes` bytes after each command.
-            // If response is larger, something went wrong, or interfering,
-            // or there is an unexpected race condition.
-            if (port.BytesToRead > 0)
-            {
-                // Rare case, no need for optimization
-                var buff = new byte[port.BytesToRead];
-                port.Read(buff, 0, port.BytesToRead);
-                throw new StepMotorException("Unexpected content in the motor's buffer.", buff);
-            }
+            _taskSource?.SetResult(reply);
         }
 
         public override async Task<Reply> SendCommandAsync(
@@ -176,7 +176,39 @@ namespace StepMotor
 
         public  override void Dispose()
         {
-            throw new NotImplementedException();
+            Port.DataReceived -= Port_DataReceived;
+            base.Dispose();
+        }
+
+        internal async Task<bool> TrySwitchToBinary(Address address)
+        {
+            Port.WriteLine("");
+            await Task.Delay(TimeOut);
+
+            var addrStr = ((char)(address - 1 + 'A'));
+            var command = $"{addrStr} BIN";
+            await _mutex.WaitAsync();
+            try
+            {
+                _taskSource = new TaskCompletionSource<Reply>();
+                Port.WriteLine(command);
+                var result = await ForTask(_taskSource.Task, TimeOut, default);
+            }
+            catch (StepMotorException smEx)
+            {
+                if (smEx.RawData?.Length > 0)
+                {
+                    var str = Port.Encoding.GetString(smEx.RawData);
+                }
+            }
+            catch (Exception e)
+            { }
+            finally
+            {
+                _mutex.Release();
+            }
+
+            return false;
         }
 
         private static async Task<T> ForTask<T>(Task<T> task, TimeSpan timeOut, CancellationToken token)

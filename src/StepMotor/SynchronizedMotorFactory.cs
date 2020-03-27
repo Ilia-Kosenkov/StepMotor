@@ -13,12 +13,32 @@ namespace StepMotor
             throw new NotImplementedException();
         }
 
-        public Task<IAsyncMotor> TryCreateFromAddressAsync(SerialPort port, Address address, TimeSpan defaultTimeOut = default)
+        public async Task<IAsyncMotor?> TryCreateFromAddressAsync(
+            SerialPort port, Address address, TimeSpan defaultTimeOut = default)
         {
-            throw new NotImplementedException();
+            _ = port ?? throw new ArgumentNullException(nameof(port));
+
+            var motor = new SynchronizedMotor(port, address, defaultTimeOut);
+            try
+            {
+                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, address, 0,
+                    defaultTimeOut)).IsSuccess)
+                    return motor;
+
+                if (await motor.TrySwitchToBinary(address))
+                    return motor;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            await motor.DisposeAsync();
+            return null;
+
         }
 
-        public Task<IAsyncMotor> TryCreateFirstAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null,
+        public Task<IAsyncMotor?> TryCreateFirstAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null,
             TimeSpan defaultTimeOut = default)
         {
             throw new NotImplementedException();
@@ -29,5 +49,6 @@ namespace StepMotor
         {
             throw new NotImplementedException();
         }
+       
     }
 }

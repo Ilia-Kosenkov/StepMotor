@@ -26,7 +26,6 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using static StepMotor.StepMotorHandler;
 
 namespace StepMotor
 {

@@ -193,6 +193,8 @@ namespace StepMotor
             try
             {
                 _taskSource = new TaskCompletionSource<Reply>();
+                Port.DiscardOutBuffer();
+                Port.DiscardInBuffer();
                 Port.WriteLine(command);
                 if ((await ForTask(_taskSource.Task, TimeOut, default)).IsSuccess)
                     return true;
@@ -210,6 +212,8 @@ namespace StepMotor
             finally
             {
                 _taskSource = null;
+                Port.DiscardOutBuffer();
+                Port.DiscardInBuffer();
                 _mutex.Release();
             }
 

@@ -1,4 +1,5 @@
-﻿using System.IO.Ports;
+﻿using System;
+using System.IO.Ports;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using StepMotor;
@@ -14,7 +15,7 @@ namespace DebugTests
         {
             IAsyncMotorFactory factory = new SynchronizedMotorFactory();
             var port = new SerialPort("COM1");
-            var motor = await factory.TryCreateFromAddressAsync(port, 1);
+            var motor = await factory.TryCreateFromAddressAsync(port, 1, TimeSpan.FromSeconds(2));
 
         }
     }

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Immutable;
 using System.IO.Ports;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Reflection;
 
 namespace StepMotor
 {
@@ -105,13 +107,14 @@ namespace StepMotor
         }
 
 
-        private static IAsyncMotor CreateMotor(SerialPort port, Address address, TimeSpan timeOut)
+        private static IAsyncMotor CreateMotor(SerialPort port, Address? address, TimeSpan timeOut)
         {
-            var ctor = typeof(T).GetConstructor(new[] {typeof(SerialPort), typeof(Address), typeof(TimeSpan)});
+            var args = new[] { typeof(SerialPort), typeof(Address?), typeof(TimeSpan) };
+            var ctor = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, args, null);
             if (ctor is null)
                 throw new InvalidOperationException($"Type {typeof(T).Name} does not have specific constructor.");
 
-            return ctor.Invoke(new object[] {port, address, timeOut}) as IAsyncMotor
+            return ctor.Invoke(new object[] {port, address!, timeOut}) as IAsyncMotor
                    ?? throw new InvalidOperationException(
                        $"Type mismatch: {typeof(T).Name} does not implement {typeof(IAsyncMotor).Name}");
         }

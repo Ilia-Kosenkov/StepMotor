@@ -39,7 +39,7 @@ namespace StepMotor
         private readonly SemaphoreSlim _mutex = new SemaphoreSlim(1);
         private TaskCompletionSource<Reply>? _taskSource;
 
-        public SynchronizedMotor(SerialPort port, Address address, TimeSpan defaultTimeOut = default)
+        internal SynchronizedMotor(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
             : base(port, address, defaultTimeOut)
         {
             // Event listeners

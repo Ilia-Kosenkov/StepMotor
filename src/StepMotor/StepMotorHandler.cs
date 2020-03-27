@@ -47,7 +47,7 @@ namespace StepMotor
         /// </summary>
         private volatile bool _suppressEvents;
 
-        /// <summary>
+         /// <summary>
         /// Default constructor
         /// </summary>
         /// <param name="port">COM port.</param>
@@ -55,7 +55,7 @@ namespace StepMotor
         /// <param name="address">Device address.</param>
         /// <exception cref="ArgumentOutOfRangeException"/>
         internal StepMotorHandler(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
-            :base(port, address, defaultTimeOut)
+            : base(port, address, defaultTimeOut)
         {
             // Event listeners
             Port.DataReceived += Port_DataReceived;

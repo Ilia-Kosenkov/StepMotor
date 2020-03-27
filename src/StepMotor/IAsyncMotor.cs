@@ -59,5 +59,8 @@ namespace StepMotor
         Task<Reply> SendCommandAsync(
             Command command, int argument,
             CommandParam param, MotorBank motorOrBank = default);
+
+        Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
+        Task StopAsync(MotorBank motorOrBank = default);
     }
 }

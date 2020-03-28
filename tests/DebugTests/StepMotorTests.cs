@@ -162,8 +162,7 @@ namespace DebugTests
             Assert.ThrowsAsync<TimeoutException>(() =>
                 _motor.WaitForPositionReachedAsync(timeOut: TimeSpan.FromMilliseconds(350)));
 
-            Assert.That(() => _motor.WaitForPositionReachedAsync().GetAwaiter().GetResult(), Throws.Nothing);
-
+            Assert.That(async () => await _motor.WaitForPositionReachedAsync(), Throws.Nothing);
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
             Assert.AreEqual(pos, await _motor.GetActualPositionAsync());
 
@@ -237,7 +236,7 @@ namespace DebugTests
         }
 
         [Test]
-        [TestCase(100)]
+        [TestCase(10)]
         public async Task StressTestMotor(int n)
         {
             const int step = 3200;

@@ -112,7 +112,7 @@ namespace StepMotor
             {
                 // Constructs raw command array
                 FillInBytes(address, (byte) command, type, motorOrBank, argument, _commandBuffer);
-                _taskSource = new TaskCompletionSource<Reply>();
+                _taskSource = new TaskCompletionSource<Reply>(TaskCreationOptions.RunContinuationsAsynchronously);
                 // Sends data to COM port
                 Port.Write(_commandBuffer, 0, _commandBuffer.Length);
                 //await Task.Delay(TimeOut);
@@ -194,7 +194,7 @@ namespace StepMotor
             await _mutex.WaitAsync();
             try
             {
-                _taskSource = new TaskCompletionSource<Reply>();
+                _taskSource = new TaskCompletionSource<Reply>(TaskCreationOptions.RunContinuationsAsynchronously);
                 Port.DiscardOutBuffer();
                 Port.DiscardInBuffer();
                 Port.WriteLine(command);
@@ -225,9 +225,6 @@ namespace StepMotor
         private async Task<T> ForTask<T>(Task<T> task, TimeSpan timeOut, CancellationToken token)
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
-
-            // Remove
-            Console.WriteLine(timeOut);
 
             if (timeOut == default && token == default)
                 return await task;

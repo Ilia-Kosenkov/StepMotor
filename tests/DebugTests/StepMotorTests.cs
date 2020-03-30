@@ -42,7 +42,7 @@ namespace DebugTests
             var ports = SerialPort.GetPortNames();
 
             //var factory = new StepMotorFactory();
-            var factory = new SynchronizedMotorFactory<SynchronizedMotor>();
+            var factory = new StepMotorProvider<SynchronizedMotor>();
 
             var devices =
                 await Task.WhenAll(ports.Select(x => new SerialPort(x)).Select(async x => (Port: x, Addresses: await factory.FindDeviceAsync(x))));
@@ -63,7 +63,7 @@ namespace DebugTests
         public async Task SetUp()
         {
             _port = new SerialPort("COM1");
-            _motor = await new SynchronizedMotorFactory<SynchronizedMotor>().CreateFirstOrFromAddressAsync(_port, 1);
+            _motor = await new StepMotorProvider<SynchronizedMotor>().CreateFirstOrFromAddressAsync(_port, 1);
             await _motor.ReturnToOriginAsync();
         }
 

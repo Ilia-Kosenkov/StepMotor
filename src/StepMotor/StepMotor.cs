@@ -27,6 +27,7 @@ using System.Collections.Immutable;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace StepMotor
 {
@@ -34,6 +35,8 @@ namespace StepMotor
     {
         protected const int ResponseSizeInBytes = 9;
         protected const int SpeedFactor = 30;
+
+        protected readonly ILogger? Logger = null;
 
         public event StepMotorEventHandler? DataReceived;
         public event StepMotorEventHandler? ErrorReceived;
@@ -43,7 +46,7 @@ namespace StepMotor
 
         protected readonly TimeSpan TimeOut;
 
-        protected internal StepMotor(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
+        protected internal StepMotor(SerialPort port, Address? address, ILogger? logger, TimeSpan defaultTimeOut = default)
         {
             address ??= Address.DefaultStart;
 
@@ -52,7 +55,9 @@ namespace StepMotor
                 : defaultTimeOut;
 
             Address = address.Value;
-            Port = port; //new SerialPort(portName, 9600, Parity.None, 8, StopBits.One);
+            Port = port;
+            Logger = logger;
+
             // Event listeners
             Port.NewLine = "\r";
 

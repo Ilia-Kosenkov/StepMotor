@@ -30,6 +30,7 @@ using System.Diagnostics;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace StepMotor
 {
@@ -39,8 +40,8 @@ namespace StepMotor
         private readonly SemaphoreSlim _mutex = new SemaphoreSlim(1, 1);
         private TaskCompletionSource<Reply>? _taskSource;
 
-        internal SynchronizedMotor(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
-            : base(port, address, defaultTimeOut)
+        internal SynchronizedMotor(SerialPort port, Address? address, ILogger? logger = null, TimeSpan defaultTimeOut = default)
+            : base(port, address, logger, defaultTimeOut)
         {
             // Event listeners
             // Not sure if needed

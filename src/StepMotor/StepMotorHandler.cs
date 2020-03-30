@@ -31,6 +31,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+
 // ReSharper disable UnusedMember.Global
 
 namespace StepMotor
@@ -47,15 +49,8 @@ namespace StepMotor
         /// </summary>
         private volatile bool _suppressEvents;
 
-         /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <param name="port">COM port.</param>
-        /// <param name="defaultTimeOut">Default response timeout.</param>
-        /// <param name="address">Device address.</param>
-        /// <exception cref="ArgumentOutOfRangeException"/>
-        internal StepMotorHandler(SerialPort port, Address? address, TimeSpan defaultTimeOut = default)
-            : base(port, address, defaultTimeOut)
+        internal StepMotorHandler(SerialPort port, Address? address, ILogger? logger = null, TimeSpan defaultTimeOut = default)
+            : base(port, address, logger, defaultTimeOut)
         {
             // Event listeners
             Port.DataReceived += Port_DataReceived;

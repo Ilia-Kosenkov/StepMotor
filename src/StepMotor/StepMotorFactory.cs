@@ -67,7 +67,7 @@ namespace StepMotor
             if (port is null)
                 throw new ArgumentNullException(nameof(port));
 
-            var motor = new StepMotorHandler(port, address, defaultTimeOut);
+            var motor = new StepMotorHandler(port, address, defaultTimeOut: defaultTimeOut);
 
             try
             {

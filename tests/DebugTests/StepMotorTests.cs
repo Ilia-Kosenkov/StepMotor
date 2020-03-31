@@ -125,7 +125,7 @@ namespace DebugTests
             // Rotates to zero
             await _motor.ReturnToOriginAsync(CancellationToken.None);
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
 
             // Rotates to target position
@@ -136,14 +136,14 @@ namespace DebugTests
             //await _motor.WaitForPositionReachedAsync();
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(pos, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(pos, await _motor.GetPositionAsync());
 
 
             // Returns back to zero
             await _motor.ReturnToOriginAsync(CancellationToken.None);
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
         }
 
@@ -154,7 +154,7 @@ namespace DebugTests
         {
 
             // Rotates to zero
-            Assume.That(await _motor.GetActualPositionAsync(), Is.EqualTo(0));
+            Assume.That(await _motor.GetPositionAsync(), Is.EqualTo(0));
 
             // Rotates to target position
             var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
@@ -164,7 +164,7 @@ namespace DebugTests
 
             Assert.That(async () => await _motor.WaitForPositionReachedAsync(), Throws.Nothing);
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(pos, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(pos, await _motor.GetPositionAsync());
 
         }
 
@@ -176,7 +176,7 @@ namespace DebugTests
             await _motor.ReturnToOriginAsync(CancellationToken.None);
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
 
             // Rotates to target position
@@ -188,14 +188,14 @@ namespace DebugTests
             Assert.IsFalse(await _motor.IsInMotionAsync());
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(pos, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(pos, await _motor.GetPositionAsync());
 
 
             // Returns back to zero
             await _motor.ReturnToOriginAsync(CancellationToken.None);
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
         }
 
@@ -207,7 +207,7 @@ namespace DebugTests
             await _motor.ReturnToOriginAsync(CancellationToken.None);
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
             // Rotates to target position
             var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
@@ -225,13 +225,13 @@ namespace DebugTests
             Assert.IsFalse(await _motor.IsInMotionAsync());
             Assert.IsFalse(await _motor.IsTargetPositionReachedAsync());
 
-            Assert.AreNotEqual(pos, await _motor.GetActualPositionAsync());
+            Assert.AreNotEqual(pos, await _motor.GetPositionAsync());
 
             // Returns back to zero
             await _motor.ReturnToOriginAsync(CancellationToken.None);
 
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
-            Assert.AreEqual(0, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(0, await _motor.GetPositionAsync());
 
         }
 
@@ -250,7 +250,7 @@ namespace DebugTests
                 await Task.Delay(timeout);
             }
 
-            Assert.AreEqual(step * n, await _motor.GetActualPositionAsync());
+            Assert.AreEqual(step * n, await _motor.GetPositionAsync());
 
             await _motor.ReturnToOriginAsync();
         }

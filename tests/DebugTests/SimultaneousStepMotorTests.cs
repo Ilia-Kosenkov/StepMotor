@@ -44,7 +44,7 @@ namespace DebugTests
         public async Task SetUp()
         {
             //var factory = new StepMotorFactory();
-            var factory = new SynchronizedMotorFactory<SynchronizedMotor>();
+            var factory = new StepMotorProvider<SynchronizedMotor>();
             _port1 = new SerialPort(@"COM1");
             _port2 = new SerialPort(@"COM4");
 
@@ -69,7 +69,7 @@ namespace DebugTests
         public async Task Test(int param)
         {
             await Task.WhenAll(_handler1.ReturnToOriginAsync(), _handler2.ReturnToOriginAsync());
-            var positions = await Task.WhenAll(_handler1.GetActualPositionAsync(), _handler2.GetActualPositionAsync());
+            var positions = await Task.WhenAll(_handler1.GetPositionAsync(), _handler2.GetPositionAsync());
             CollectionAssert.AreEquivalent(new[] { 0, 0 }, positions);
 
             var responses = await Task.WhenAll(
@@ -79,11 +79,11 @@ namespace DebugTests
 
             await Task.WhenAll(_handler1.WaitForPositionReachedAsync(), _handler2.WaitForPositionReachedAsync());
 
-            positions = await Task.WhenAll(_handler1.GetActualPositionAsync(), _handler2.GetActualPositionAsync());
+            positions = await Task.WhenAll(_handler1.GetPositionAsync(), _handler2.GetPositionAsync());
             CollectionAssert.AreEquivalent(new[] { param, param }, positions);
 
             await Task.WhenAll(_handler1.ReturnToOriginAsync(), _handler2.ReturnToOriginAsync());
-            positions = await Task.WhenAll(_handler1.GetActualPositionAsync(), _handler2.GetActualPositionAsync());
+            positions = await Task.WhenAll(_handler1.GetPositionAsync(), _handler2.GetPositionAsync());
             CollectionAssert.AreEquivalent(new[] { 0, 0 }, positions);
         }
 

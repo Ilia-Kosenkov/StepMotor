@@ -43,6 +43,8 @@ namespace StepMotor
 
         Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
 
+        Task<int> GetPositionAsync(MotorBank motorOrBank = default);
+
         Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
         Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);

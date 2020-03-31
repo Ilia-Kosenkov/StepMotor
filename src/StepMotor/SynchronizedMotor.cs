@@ -103,31 +103,48 @@ namespace StepMotor
                 buff[ResponseSizeInBytes - 1] = sum;
             }
 
-            if (!await _mutex.WaitAsync(timeOut, token))
-            {
-                token.ThrowIfCancellationRequested();
-                throw new TimeoutException();
-            }
-
             try
             {
-                // Constructs raw command array
-                FillInBytes(address, (byte) command, type, motorOrBank, argument, _commandBuffer);
-                _taskSource = new TaskCompletionSource<Reply>(TaskCreationOptions.RunContinuationsAsynchronously);
-                // Sends data to COM port
-                Port.Write(_commandBuffer, 0, _commandBuffer.Length);
-                //await Task.Delay(TimeOut);
-                await Task.Yield();
-                return await ForTask(_taskSource.Task, timeOut, token);
+                if (!await _mutex.WaitAsync(timeOut, token))
+                {
+                    token.ThrowIfCancellationRequested();
+                    throw new TimeoutException();
+                }
+
+                try
+                {
+                    // Constructs raw command array
+                    FillInBytes(address, (byte) command, type, motorOrBank, argument, _commandBuffer);
+                    _taskSource = new TaskCompletionSource<Reply>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    // Sends data to COM port
+                    Port.Write(_commandBuffer, 0, _commandBuffer.Length);
+                    //await Task.Delay(TimeOut);
+                    await Task.Yield();
+                    return await ForTask(_taskSource.Task, timeOut, token);
+                }
+                finally
+                {
+                    _taskSource = null;
+                    _mutex.Release();
+                    Logger?.LogInformation("{StepMotor}: {Command}({Argument}) was sent", Id, command, argument);
+                }
             }
-            finally
+            catch (TimeoutException tEx)
             {
-                _taskSource = null;
-                _mutex.Release();
+                LogCaughtException(tEx, "{StepMotor}: Step motor did not reach position in time");
+                throw;
+            }
+            catch (OperationCanceledException opEx)
+            {
+                LogCaughtException(opEx, "{StepMotor}: Waiting has been cancelled by the caller");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                LogCaughtException(ex);
+                throw;
             }
 
-            // Wait for response
-            //return await WaitResponseAsync(responseTaskSource.Task, command, timeOut);
         }
 
 
@@ -200,16 +217,22 @@ namespace StepMotor
                 Port.DiscardInBuffer();
                 Port.WriteLine(command);
                 if ((await ForTask(_taskSource.Task, TimeOut, default)).IsSuccess)
+                {
+                    Logger?.LogInformation("{StepMotor}: Step motor is already in binary mode", Id);
                     return true;
+                }
             }
             catch (StepMotorException smEx)
             {
                 if (smEx.RawData?.Length > 0 && CheckIfAsciiResponse(
-                        command.AsSpan(),
-                        Port.Encoding.GetString(smEx.RawData).AsSpan(),
-                        addrStr,
-                        Port.NewLine.AsSpan()))
+                    command.AsSpan(),
+                    Port.Encoding.GetString(smEx.RawData).AsSpan(),
+                    addrStr,
+                    Port.NewLine.AsSpan()))
+                {
+                    Logger?.LogInformation("{StepMotor}: Step motor was successfully switched to binary mode", Id);
                     return true;
+                }
 
             }
             finally
@@ -219,7 +242,7 @@ namespace StepMotor
                 Port.DiscardInBuffer();
                 _mutex.Release();
             }
-
+            Logger?.LogWarning("{StepMotor}: Failed switching to binary mode", Id);
             return false;
         }
 

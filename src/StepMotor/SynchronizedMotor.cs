@@ -24,6 +24,7 @@
 #nullable enable
 
 using System;
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -53,20 +54,30 @@ namespace StepMotor
             if (!(sender is SerialPort port))
                 return;
 
-            if (port.BytesToRead < ResponseSizeInBytes)
+            var n = port.BytesToRead;
+
+            if (n < ResponseSizeInBytes)
                 return;
 
-            if (port.BytesToRead > ResponseSizeInBytes)
+            if (n > ResponseSizeInBytes)
             {
                 // This should not happen as step motors through out 
                 // `ResponseSizeInBytes` bytes after each command.
                 // If response is larger, something went wrong, or interfering,
                 // or there is an unexpected race condition.
                 // Rare case, no need for optimization
-                var buff = new byte[port.BytesToRead];
-                port.Read(buff, 0, port.BytesToRead);
-                _taskSource?.SetException(new StepMotorException("Unexpected content in the motor's buffer.", buff));
-                return;
+                var buff = ArrayPool<byte>.Shared.Rent(n);
+                try
+                {
+                    port.Read(buff, 0, n);
+                    _taskSource?.SetException(new StepMotorException("Unexpected content in the motor's buffer.",
+                        buff.AsSpan(0, n)));
+                    return;
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(buff);
+                }
             }
 
             var span = _commandBuffer.AsSpan();

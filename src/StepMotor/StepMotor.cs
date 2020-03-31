@@ -23,6 +23,7 @@
 #nullable enable
 
 using System;
+using System.Buffers;
 using System.Collections.Immutable;
 using System.IO.Ports;
 using System.Threading;
@@ -73,9 +74,27 @@ namespace StepMotor
             Port.DiscardInBuffer();
             Port.DiscardOutBuffer();
 
+            Port.ErrorReceived += Port_ErrorReceived;
+
             Id = new MotorId(Port.PortName, Address);
 
             Logger?.LogInformation("{StepMotor}: Created", Id);
+        }
+
+        protected virtual void Port_ErrorReceived(object sender, SerialErrorReceivedEventArgs args)
+        {
+            var n = Port.BytesToRead;
+            if (n <= 0) return;
+
+            var buffer = ArrayPool<byte>.Shared.Rent(n);
+            try
+            {
+                Port.Read(buffer, 0, n);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         public abstract Task<Reply> SendCommandAsync(

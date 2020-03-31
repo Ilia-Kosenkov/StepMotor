@@ -153,13 +153,11 @@ namespace StepMotor
                 {
                     var reply = new Reply(pool.AsSpan(0, ResponseSizeInBytes));
                     taskSrc?.SetResult(reply);
-                    OnDataReceived(new StepMotorEventArgs(pool.AsSpan(0, ResponseSizeInBytes).ToArray()));
                 }
                 else if (len % ResponseSizeInBytes == 0)
                 {
                     var reply = new Reply(pool.AsSpan(0, ResponseSizeInBytes));
                     taskSrc?.SetResult(reply);
-                    OnDataReceived(new StepMotorEventArgs(pool.AsSpan(0, ResponseSizeInBytes).ToArray()));
 
                     for (var i = 0; i < len / ResponseSizeInBytes; i++)
                     {
@@ -169,13 +167,11 @@ namespace StepMotor
                         }
 
                         taskSrc?.SetResult(reply);
-                        OnDataReceived(new StepMotorEventArgs(pool.AsSpan(0, ResponseSizeInBytes).ToArray()));
                     }
                 }
                 else
                 {
                     taskSrc?.SetException(new StepMotorException("Step motor response is inconsistent", pool));
-                    OnDataReceived(new StepMotorEventArgs(pool.ToArray()));
                 }
             }
             finally
@@ -188,15 +184,16 @@ namespace StepMotor
         private void Port_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
         {
             // Reads last response
-            byte[]? buffer = null;
 
             if (Port.BytesToRead > 0)
-                buffer = new byte[Port.BytesToRead];
+            {
+                var buffer = new byte[Port.BytesToRead];
+                Port.Read(buffer, 0, buffer.Length);
+            }
 
             while (_responseWaitQueue.TryDequeue(out var taskSrc))
                 taskSrc.SetException(new InvalidOperationException(@"Step motor returned an error."));
 
-            OnErrorReceived(new StepMotorEventArgs(buffer ?? Array.Empty<byte>()));
         }
 
 

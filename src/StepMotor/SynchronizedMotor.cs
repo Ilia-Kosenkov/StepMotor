@@ -116,6 +116,7 @@ namespace StepMotor
 
             try
             {
+                Reply result = default;
                 if (!await _mutex.WaitAsync(timeOut, token))
                 {
                     token.ThrowIfCancellationRequested();
@@ -131,13 +132,15 @@ namespace StepMotor
                     Port.Write(_commandBuffer, 0, _commandBuffer.Length);
                     //await Task.Delay(TimeOut);
                     await Task.Yield();
-                    return await ForTask(_taskSource.Task, timeOut, token);
+                    result = await ForTask(_taskSource.Task, timeOut, token);
+                    return result;
                 }
                 finally
                 {
                     _taskSource = null;
                     _mutex.Release();
-                    Logger?.LogInformation("{StepMotor}: {Command}({Argument}) was sent", Id, command, argument);
+                    Logger?.LogInformation("{StepMotor}: {Command}({Argument}) was sent; Returned: {Result}",
+                        Id, command, argument, result);
                 }
             }
             catch (TimeoutException tEx)

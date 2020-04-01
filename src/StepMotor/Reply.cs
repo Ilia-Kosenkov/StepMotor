@@ -40,13 +40,13 @@ namespace StepMotor
         /// Address of the reply.
         /// </summary>
         [DataMember]
-        public byte ReplyAddress { get; }
+        public Address ReplyAddress { get; }
 
         /// <summary>
         /// Address of the module.
         /// </summary>
         [DataMember]
-        public byte ModuleAddress { get; }
+        public Address ModuleAddress { get; }
 
         /// <summary>
         /// Status of a command execution.
@@ -171,7 +171,7 @@ namespace StepMotor
         /// <returns>String representation of <see cref="Reply"/>.</returns>
         public override string ToString()
         {
-            return $"[{ReplyAddress,2};{ModuleAddress,2};{Command,15};{Status,12};{ReturnValue,10}]";
+            return $"[{(byte)ReplyAddress,2};{(byte)ModuleAddress,2};{Command,15};{Status,12};{ReturnValue,10}]";
         }
     }
 }

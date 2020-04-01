@@ -25,11 +25,13 @@ using System;
 
 namespace StepMotor
 {
+    [System.Runtime.Serialization.DataContract]
     public readonly struct Address
     {
         public static Address DefaultStart { get; } = 1;
         public static Address DefaultEnd { get; }= 16;
 
+        [System.Runtime.Serialization.DataMember]
         public byte RawValue { get; }
 
         public Address(byte address) => RawValue = address;

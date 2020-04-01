@@ -7,6 +7,7 @@ namespace DebugTests
     // https://github.com/MarshallMoorman/Extensions.Logging.NUnit/blob/master/NUnitLogger.cs
     internal class NUnitLogger : ILogger
     {
+        public static ILogger Instance { get; } = new NUnitLogger();
         private readonly Func<string, LogLevel, bool>? _filter;
         private readonly string _name;
 
@@ -51,7 +52,9 @@ namespace DebugTests
 
         private static bool RunningInNUnitContext() => NUnit.Framework.TestContext.Progress is { };
 
-        private static void WriteMessage(string message) => NUnit.Framework.TestContext.Progress.WriteLine(message);
+        private static void WriteMessage(string message)
+            //=> NUnit.Framework.TestContext.Progress.WriteLine(message);
+            => NUnit.Framework.TestContext.WriteLine(message);
 
         private class ScopeHandler : IDisposable
         {

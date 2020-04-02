@@ -26,23 +26,12 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using static StepMotor.StepMotorHandler;
 
 namespace StepMotor
 {
-    public interface IAsyncMotor : IDisposable
+    public interface IAsyncMotor : IDisposable, IAsyncDisposable
     {
         Address Address { get; }
-
-
-        /// <summary>
-        /// Fires when data has been received from COM port.
-        /// </summary>
-        public event StepMotorEventHandler? DataReceived;
-        /// <summary>
-        /// Fires when error data has been received from COM port.
-        /// </summary>
-        public event StepMotorEventHandler? ErrorReceived;
 
         Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
         Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
@@ -54,6 +43,8 @@ namespace StepMotor
 
         Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
 
+        Task<int> GetPositionAsync(MotorBank motorOrBank = default);
+
         Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
         Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
@@ -64,5 +55,14 @@ namespace StepMotor
             CommandParam.MoveType rotationType = CommandParam.MoveType.Absolute, MotorBank motorOrBank = default);
 
         Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
+
+        Task<bool> TrySwitchToBinary();
+
+        Task<Reply> SendCommandAsync(
+            Command command, int argument,
+            CommandParam param, MotorBank motorOrBank = default);
+
+        Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
+        Task StopAsync(MotorBank motorOrBank = default);
     }
 }

@@ -43,9 +43,9 @@ namespace StepMotor
                 var motor = new StepMotorHandler(port, address);
                 try
                 {
-                    if (await motor.PokeAddressInBinary(address))
+                    if (await motor.PokeAddressInBinary())
                         result.Add(address);
-                    else if (await motor.SwitchToBinary(address) && await motor.PokeAddressInBinary(address))
+                    else if (await motor.TrySwitchToBinary() && await motor.PokeAddressInBinary())
                         result.Add(address);
                 }
                 catch (Exception)
@@ -67,14 +67,14 @@ namespace StepMotor
             if (port is null)
                 throw new ArgumentNullException(nameof(port));
 
-            var motor = new StepMotorHandler(port, address, defaultTimeOut);
+            var motor = new StepMotorHandler(port, address, defaultTimeOut: defaultTimeOut);
 
             try
             {
-                if (await motor.PokeAddressInBinary(address))
+                if (await motor.PokeAddressInBinary())
                     return motor;
 
-                if (await motor.SwitchToBinary(address) && await motor.PokeAddressInBinary(address))
+                if (await motor.TrySwitchToBinary() && await motor.PokeAddressInBinary())
                     return motor;
 
             }

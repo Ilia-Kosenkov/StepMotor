@@ -227,12 +227,18 @@ namespace StepMotor
                 if (!await IsTargetPositionReachedAsync(motorOrBank))
                 {
                     token.ThrowIfCancellationRequested();
-                    var status = await GetRotationStatusAsync(motorOrBank);
-                    var delayMs = Math.Max(
-                        250 * Math.Abs(status[CommandParam.AxisParameter.TargetPosition] -
-                                       status[CommandParam.AxisParameter.ActualPosition]) /
-                        (SpeedFactor * status[CommandParam.AxisParameter.MaximumSpeed]),
-                        500);
+                    var targetPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
+                        CommandParam.AxisParameter.TargetPosition, motorOrBank);
+                    var actualPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
+                        CommandParam.AxisParameter.ActualSpeed, motorOrBank);
+                    var maximumSpeed = await SendCommandAsync(Command.GetAxisParameter, 0,
+                        CommandParam.AxisParameter.MaximumSpeed, motorOrBank);
+
+                    var delayMs = 250;
+                    if (targetPosition.IsSuccess && actualPosition.IsSuccess && maximumSpeed.IsSuccess)
+                        delayMs = Math.Max(
+                            250 * Math.Abs(targetPosition.ReturnValue - actualPosition.ReturnValue) / (SpeedFactor * maximumSpeed.ReturnValue),
+                            500);
 
                     while (!await IsTargetPositionReachedAsync(motorOrBank))
                     {

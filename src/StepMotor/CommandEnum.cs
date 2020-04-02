@@ -143,7 +143,7 @@ namespace StepMotor
         /// SAC: Accesses SPI Bus
         /// </summary>
         [EnumMember]
-        SpibUsAccess = 29,
+        SpiBusAccess = 29,
 
         /// <summary>
         /// SCO: Sets coordinate

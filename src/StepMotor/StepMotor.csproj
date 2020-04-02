@@ -4,8 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <AssemblyVersion>0.0.1.22</AssemblyVersion>
-    <FileVersion>0.0.1.1723</FileVersion>
+    <AssemblyVersion>0.0.2.0</AssemblyVersion>
+    <FileVersion>0.0.2.0907</FileVersion>
     <Version>0.0.1</Version>
   </PropertyGroup>
 

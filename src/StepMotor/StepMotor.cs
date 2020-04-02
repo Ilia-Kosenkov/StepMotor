@@ -430,17 +430,17 @@ namespace StepMotor
         protected Exception LogThenFail(
             string exMessage = "Failed to retrieve value.",
             string loggerMessage = "{StepMotor}: Communication failed",
-            params object[] @pars)
+            params object[] pars)
         {
             var ex = new InvalidOperationException(exMessage);
-            Logger?.LogError(ex, loggerMessage, Id, @pars);
+            Logger?.LogError(ex, loggerMessage, Id, pars);
             return ex;
         }
 
         protected void LogCaughtException<TEx>(
             TEx ex,
             string loggerMessage = "{StepMotor}: An exception was thrown",
-            params object[] @pars) where TEx : Exception 
-            => Logger?.LogError(ex, loggerMessage, Id, @pars);
+            params object[] pars) where TEx : Exception 
+            => Logger?.LogError(ex, loggerMessage, Id, pars);
     }
 }

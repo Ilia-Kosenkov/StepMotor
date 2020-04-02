@@ -53,7 +53,6 @@ namespace DebugTests
         private static bool RunningInNUnitContext() => NUnit.Framework.TestContext.Progress is { };
 
         private static void WriteMessage(string message)
-            //=> NUnit.Framework.TestContext.Progress.WriteLine(message);
             => NUnit.Framework.TestContext.WriteLine(message);
 
         private class ScopeHandler : IDisposable

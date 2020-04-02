@@ -230,7 +230,7 @@ namespace StepMotor
                     var targetPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
                         CommandParam.AxisParameter.TargetPosition, motorOrBank);
                     var actualPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
-                        CommandParam.AxisParameter.ActualSpeed, motorOrBank);
+                        CommandParam.AxisParameter.ActualPosition, motorOrBank);
                     var maximumSpeed = await SendCommandAsync(Command.GetAxisParameter, 0,
                         CommandParam.AxisParameter.MaximumSpeed, motorOrBank);
 

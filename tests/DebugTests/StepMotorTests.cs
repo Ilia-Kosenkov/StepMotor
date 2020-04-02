@@ -23,7 +23,6 @@
 //     SOFTWARE.
 
 using System;
-using System.Data;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;

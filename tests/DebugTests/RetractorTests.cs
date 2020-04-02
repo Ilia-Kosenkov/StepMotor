@@ -34,15 +34,14 @@ namespace DebugTests
     [TestFixture]
     public class RetractorMotorStaticTests
     {
-        private IAsyncMotor _device;
-        private SerialPort _port;
+        private IAsyncMotor? _device;
+        private SerialPort? _port;
         private const string TestPort = @"COM4";
-        private IAsyncMotorFactory _factory;
+        private IAsyncMotorFactory? _factory;
 
         [SetUp]
         public void SetUp()
         {
-            //_factory = new StepMotorFactory();
             _factory = new StepMotorProvider<SynchronizedMotor>(NUnitLogger.Instance);
         }
 
@@ -62,12 +61,13 @@ namespace DebugTests
         {
             var ports = SerialPort.GetPortNames();
             Assume.That(ports, Contains.Item(TestPort));
+            Assume.That(_factory, Is.Not.Null);
             Assume.That(_device, Is.Null);
 
             _port = new SerialPort(TestPort);
-            _device = await _factory.TryCreateFromAddressAsync(_port, 1);
+            _device = await _factory!.TryCreateFromAddressAsync(_port, 1);
             Assume.That(_device, Is.Not.Null);
-            Assert.That(await _device.GetPositionAsync(), Is.EqualTo(0));
+            Assert.That(await _device!.GetPositionAsync(), Is.EqualTo(0));
 
         }
 
@@ -77,12 +77,14 @@ namespace DebugTests
             var ports = SerialPort.GetPortNames();
             Assume.That(ports, Contains.Item(TestPort));
             Assume.That(_device, Is.Null);
+            Assume.That(_factory, Is.Not.Null);
+
             _port = new SerialPort(TestPort);
 
-            _device = await _factory.TryCreateFirstAsync(_port);
+            _device = await _factory!.TryCreateFirstAsync(_port);
             Assume.That(_device, Is.Not.Null);
             
-            Assert.That(await _device.GetPositionAsync(), Is.EqualTo(0));
+            Assert.That(await _device!.GetPositionAsync(), Is.EqualTo(0));
 
         }
 
@@ -106,14 +108,13 @@ namespace DebugTests
     [TestFixture]
     public class RetractorMotorTests
     {
-        private SerialPort _port;
-        private IAsyncMotor _motor;
+        private SerialPort? _port;
+        private IAsyncMotor? _motor;
         private const string PortName = @"COM4";
 
         [SetUp]
         public async Task SetUp()
         {
-            //var factory = new StepMotorFactory();
             var factory = new StepMotorProvider<SynchronizedMotor>(NUnitLogger.Instance);
             _port = new SerialPort(PortName);
             _motor = await factory.CreateFirstOrFromAddressAsync(_port, 1);
@@ -133,10 +134,11 @@ namespace DebugTests
         [TestCase(-450_000)]
         public async Task Test(int pos)
         {
-            await _motor.ReturnToOriginAsync();
+            Assert.NotNull(_motor);
+            await _motor!.ReturnToOriginAsync();
             Assert.That(await _motor.GetPositionAsync(), Is.EqualTo(0));
 
-            var reply = await _motor.MoveToPosition(pos, CommandParam.MoveType.Absolute);
+            var reply = await _motor.MoveToPosition(pos);
             Assert.AreEqual(ReturnStatus.Success, reply.Status);
 
             await _motor.WaitForPositionReachedAsync();

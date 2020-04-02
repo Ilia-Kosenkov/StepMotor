@@ -139,8 +139,8 @@ namespace StepMotor
                 {
                     _taskSource = null;
                     _mutex.Release();
-                    Logger?.LogInformation("{StepMotor}: {Command}({Argument}) was sent; Returned: {Result}",
-                        Id, command, argument, result);
+                    Logger?.LogInformation("{StepMotor}: {Command}({Type}, {Argument}) was sent; Returned: {Result}",
+                        Id, command, type, argument, result);
                 }
             }
             catch (TimeoutException tEx)

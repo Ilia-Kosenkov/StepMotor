@@ -156,6 +156,8 @@ namespace DebugTests
             // Rotates to target position
             var reply = await _motor.SendCommandAsync(Command.MoveToPosition, 51400, CommandParam.MoveType.Absolute);
             Assert.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
+            await _motor.WaitForPositionReachedAsync();
+            Assert.AreEqual(51400, await _motor.GetPositionAsync());
             await _motor.ReferenceReturnToOriginAsync();
             Assert.IsTrue(await _motor.IsTargetPositionReachedAsync());
             Assert.AreEqual(0, await _motor.GetPositionAsync());

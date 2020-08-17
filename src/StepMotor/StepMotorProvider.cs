@@ -96,30 +96,6 @@ namespace StepMotor
             return null;
         }
 
-        //public async Task<IAsyncMotor?> TryCreateFirstAsync(SerialPort port, Address? startAddress = null, Address? endAddress = null,
-        //    TimeSpan defaultTimeOut = default)
-        //{
-        //    _ = port ?? throw new ArgumentNullException(nameof(port));
-        //    startAddress ??= Address.DefaultStart;
-        //    endAddress ??= Address.DefaultEnd;
-
-        //    if (startAddress > endAddress)
-        //        throw new ArgumentOutOfRangeException(
-        //            $"[{nameof(startAddress)}] should be less than or equal to [{nameof(endAddress)}]");
-
-        //    for (var address = startAddress.Value.RawValue; address <= endAddress.Value.RawValue; address++)
-        //        if (await TryCreateFromAddressAsync(port, address, defaultTimeOut) is { } motor)
-        //            return motor;
-
-        //    return null;
-        //}
-
-        //public async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(SerialPort port, Address address, Address? startAddress = null,
-        //    Address? endAddress = null, TimeSpan defaultTimeOut = default)
-        //    => (await TryCreateFromAddressAsync(port, address, defaultTimeOut)
-        //        ?? await this.TryCreateFirstAsync(port, startAddress, endAddress, defaultTimeOut))
-        //       ?? throw new InvalidOperationException("Failed to connect to step motor.");
-
         private static async Task<bool> CheckMotorStatus(IAsyncMotor motor)
         {
             try

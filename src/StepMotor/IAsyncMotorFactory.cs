@@ -37,13 +37,6 @@ namespace StepMotor
 
         Task<IAsyncMotor?> TryCreateFromAddressAsync(
             SerialPort port, Address address, TimeSpan defaultTimeOut = default);
-
-        //Task<IAsyncMotor?> TryCreateFirstAsync(
-        //    SerialPort port, Address? startAddress = null, Address? endAddress = null, TimeSpan defaultTimeOut = default);
-
-        //Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
-        //    SerialPort port, Address address,
-        //    Address? startAddress = null, Address? endAddress = null,
-        //    TimeSpan defaultTimeOut = default);
+        
     }
 }

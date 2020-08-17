@@ -34,18 +34,11 @@ namespace StepMotor
     {
         protected ILogger? Logger;
 
-        public StepMotorProvider()
-        {
-            ThrowIfTypeIsAbstract();
-        }
+        public StepMotorProvider() => ThrowIfTypeIsAbstract();
 
-        public StepMotorProvider(ILogger? logger)
-        {
-            ThrowIfTypeIsAbstract();
-            Logger = logger;
-        }
+        public StepMotorProvider(ILogger? logger) : this() => Logger = logger;
 
-        private void ThrowIfTypeIsAbstract()
+        private static void ThrowIfTypeIsAbstract()
         {
             if(typeof(T).IsAbstract)
                 throw new ArgumentException("Cannot provide an instance of an abstract class", $"{nameof(T)}");

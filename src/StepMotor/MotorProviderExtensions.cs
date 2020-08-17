@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace StepMotor
 {
-    public static class MotorExtensions
+    public static class MotorProviderExtensions
     {
         public static async Task<IAsyncMotor?> TryCreateFirstAsync(
             this IAsyncMotorFactory factory,

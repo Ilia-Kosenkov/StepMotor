@@ -1,10 +1,6 @@
 ﻿#nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace StepMotor
@@ -34,6 +30,7 @@ namespace StepMotor
             return null;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static async Task<IAsyncMotor> CreateFirstOrFromAddressAsync(
             this IAsyncMotorFactory factory,
             SerialPort port,

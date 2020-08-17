@@ -12,6 +12,6 @@ namespace StepMotor
         public MotorId(string portName, Address address)
             => (PortName, Address) = (portName ?? throw new ArgumentNullException(nameof(portName)), address);
 
-        public override string ToString() => $"{PortName}+{Address.RawValue}";
+        public override string ToString() => $"{PortName}+{Address.RawValue:00}";
     }
 }

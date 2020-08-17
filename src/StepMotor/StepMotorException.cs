@@ -26,9 +26,9 @@ namespace StepMotor
 {
     public sealed class StepMotorException : Exception
     {
-        public byte[] RawData { get; }
+        public byte[] RawData { get; init; }
 
-        public StepMotorException(string message, Span<byte> data)
+        public StepMotorException(string message, ReadOnlySpan<byte> data)
             : base(message)
         {
             if (data.IsEmpty)

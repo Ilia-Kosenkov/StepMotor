@@ -113,22 +113,33 @@ namespace StepMotor
                 motorOrBank,
                 TimeOut);
 
-        public async Task<int> GetPositionAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,
-                CommandParam.AxisParameter.ActualPosition,
-                motorOrBank);
-
-            if (reply.IsSuccess)
+        public async Task<int> InvokeCommandAsync(
+            Command command, 
+            int argument, 
+            CommandParam param, 
+            MotorBank motorOrBank = default) 
+            => await SendCommandAsync(command, argument, param, motorOrBank) switch
             {
-                Logger?.LogInformation("{StepMotor}: Position = {Position}", Id, reply.ReturnValue);
-                return reply.ReturnValue;
-            }
+                {IsSuccess: true, ReturnValue: var retVal} => retVal,
+                _ => throw LogThenFail()
+            };
 
-            throw LogThenFail();
-        }
+        //public async Task<int> GetPositionAsync(MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(
+        //        Command.GetAxisParameter,
+        //        0,
+        //        CommandParam.AxisParameter.ActualPosition,
+        //        motorOrBank);
+
+        //    if (reply.IsSuccess)
+        //    {
+        //        Logger?.LogInformation("{StepMotor}: Position = {Position}", Id, reply.ReturnValue);
+        //        return reply.ReturnValue;
+        //    }
+
+        //    throw LogThenFail();
+        //}
 
         public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
         {
@@ -280,7 +291,7 @@ namespace StepMotor
                     throw new InvalidOperationException("Filed to query target position.");
 
                 var target = reply.ReturnValue;
-                var current = await GetPositionAsync(motorOrBank);
+                var current = await this.GetPositionAsync(motorOrBank);
 
                 progressReporter?.Report((current, target));
 
@@ -300,13 +311,13 @@ namespace StepMotor
                         if (timeOut != default && (DateTime.Now - startTime) > timeOut)
                             throw new TimeoutException();
                         await Task.Delay(delayMs, token);
-                        current = await GetPositionAsync(motorOrBank);
+                        current = await this.GetPositionAsync(motorOrBank);
                         progressReporter?.Report((current, target));
                     }
 
                 }
 
-                current = await GetPositionAsync(motorOrBank);
+                current = await this.GetPositionAsync(motorOrBank);
                 progressReporter?.Report((current, target));
             }
             catch (TimeoutException tEx)

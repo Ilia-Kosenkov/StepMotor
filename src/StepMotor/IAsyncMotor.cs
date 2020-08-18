@@ -43,7 +43,7 @@ namespace StepMotor
 
         Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
 
-        Task<int> GetPositionAsync(MotorBank motorOrBank = default);
+        //Task<int> GetPositionAsync(MotorBank motorOrBank = default);
 
         Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
@@ -58,6 +58,12 @@ namespace StepMotor
         Task<Reply> SendCommandAsync(
             Command command, int argument,
             CommandParam param, MotorBank motorOrBank = default);
+
+        Task<int> InvokeCommandAsync(
+            Command command,
+            int argument,
+            CommandParam param,
+            MotorBank motorOrBank = default);
 
         Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
         Task StopAsync(MotorBank motorOrBank = default);

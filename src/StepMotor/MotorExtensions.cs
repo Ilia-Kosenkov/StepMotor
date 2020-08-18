@@ -29,7 +29,7 @@ namespace StepMotor
         public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>>
             GetAxisParametersAsync(
                 this IAsyncMotor motor,
-                MotorBank motorOrBank,
+                MotorBank motorOrBank = default,
                 params CommandParam.AxisParameter[] @params)
             => GetAxisParametersAsync(motor, @params.ToImmutableArray(), motorOrBank);
         
@@ -60,5 +60,15 @@ namespace StepMotor
             return builder.ToImmutable();
         }
 
+
+        public static Task<int> GetPositionAsync(
+            this IAsyncMotor motor,
+            MotorBank motorOrBank)
+            => motor?.InvokeCommandAsync(
+                   Command.GetAxisParameter,
+                   0,
+                   CommandParam.AxisParameter.ActualPosition,
+                   motorOrBank)
+               ?? throw new ArgumentNullException(nameof(motor));
     }
 }

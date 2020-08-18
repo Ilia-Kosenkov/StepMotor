@@ -147,12 +147,6 @@ namespace StepMotor
             throw LogThenFail();
         }
 
-        public Task<Reply> MoveToPosition(int position,
-            CommandParam.MoveType type = CommandParam.MoveType.Absolute,
-            MotorBank motorOrBank = default) =>
-            SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank);
-
-
         public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
         {
             var reply = await SendCommandAsync(
@@ -417,8 +411,6 @@ namespace StepMotor
         }
 
         public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
-        public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(MotorBank motorOrBank = default);
-
         public abstract Task<bool> TrySwitchToBinary();
 
         public override string ToString() => Id.ToString();

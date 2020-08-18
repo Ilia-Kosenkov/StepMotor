@@ -158,22 +158,22 @@ namespace StepMotor
             throw LogThenFail();
         }
 
-        public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,  (byte) CommandParam.AxisParameter.TargetPositionReached,
-                Address,
-                motorOrBank,
-                default);
-            if (reply.IsSuccess)
-            {
-                Logger?.LogInformation("{StepMotor}: Target position is reached: {IsReached}", Id, reply.ReturnValue == 1);
-                return reply.ReturnValue == 1;
-            }
+        //public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(
+        //        Command.GetAxisParameter,
+        //        0,  (byte) CommandParam.AxisParameter.TargetPositionReached,
+        //        Address,
+        //        motorOrBank,
+        //        default);
+        //    if (reply.IsSuccess)
+        //    {
+        //        Logger?.LogInformation("{StepMotor}: Target position is reached: {IsReached}", Id, reply.ReturnValue == 1);
+        //        return reply.ReturnValue == 1;
+        //    }
 
-            throw LogThenFail();
-        }
+        //    throw LogThenFail();
+        //}
 
         public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
         {
@@ -229,7 +229,7 @@ namespace StepMotor
                 token.ThrowIfCancellationRequested();
                 var startTime = DateTime.Now;
 
-                if (!await IsTargetPositionReachedAsync(motorOrBank))
+                if (!await this.IsTargetPositionReachedAsync(motorOrBank))
                 {
                     token.ThrowIfCancellationRequested();
                     var targetPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
@@ -245,7 +245,7 @@ namespace StepMotor
                             250 * Math.Abs(targetPosition.ReturnValue - actualPosition.ReturnValue) / (SpeedFactor * maximumSpeed.ReturnValue),
                             500);
 
-                    while (!await IsTargetPositionReachedAsync(motorOrBank))
+                    while (!await this.IsTargetPositionReachedAsync(motorOrBank))
                     {
                         token.ThrowIfCancellationRequested();
                         if (timeOut != default && (DateTime.Now - startTime) > timeOut)
@@ -272,7 +272,7 @@ namespace StepMotor
         }
 
         public virtual async Task WaitForPositionReachedAsync(
-            IProgress<(int Current, int Target)> progressReporter,
+            IProgress<(int Current, int Target)>? progressReporter,
             CancellationToken token = default,
             TimeSpan timeOut = default,
             MotorBank motorOrBank = default)
@@ -295,7 +295,7 @@ namespace StepMotor
 
                 progressReporter?.Report((current, target));
 
-                if (!await IsTargetPositionReachedAsync(motorOrBank))
+                if (!await this.IsTargetPositionReachedAsync(motorOrBank))
                 {
                     token.ThrowIfCancellationRequested();
                     var status = await GetRotationStatusAsync(motorOrBank);
@@ -305,7 +305,7 @@ namespace StepMotor
                         (SpeedFactor * status[CommandParam.AxisParameter.MaximumSpeed]),
                         250);
 
-                    while (!await IsTargetPositionReachedAsync(motorOrBank))
+                    while (!await this.IsTargetPositionReachedAsync(motorOrBank))
                     {
                         token.ThrowIfCancellationRequested();
                         if (timeOut != default && (DateTime.Now - startTime) > timeOut)

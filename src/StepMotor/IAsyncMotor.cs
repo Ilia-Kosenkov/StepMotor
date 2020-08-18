@@ -41,7 +41,7 @@ namespace StepMotor
         Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter,
             CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default);
 
-        Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
+        //Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
 
         //Task<int> GetPositionAsync(MotorBank motorOrBank = default);
 

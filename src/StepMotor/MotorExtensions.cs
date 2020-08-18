@@ -32,7 +32,7 @@ namespace StepMotor
                 MotorBank motorOrBank = default,
                 params CommandParam.AxisParameter[] @params)
             => GetAxisParametersAsync(motor, @params.ToImmutableArray(), motorOrBank);
-        
+
         public static async Task<ImmutableDictionary<CommandParam.AxisParameter, int>>
             GetAxisParametersAsync(
                 this IAsyncMotor motor,
@@ -70,5 +70,19 @@ namespace StepMotor
                    CommandParam.AxisParameter.ActualPosition,
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
+
+        public static async Task<bool> IsTargetPositionReachedAsync(
+            this IAsyncMotor motor,
+            MotorBank motorOrBank = default)
+            => motor switch
+            {
+                not null => 
+                    await motor.InvokeCommandAsync(
+                        Command.GetAxisParameter, 
+                        0, 
+                        CommandParam.AxisParameter.TargetPositionReached, 
+                        motorOrBank) is 1,
+                null => throw new ArgumentNullException(nameof(motor))
+            };
     }
 }

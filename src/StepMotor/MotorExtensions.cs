@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Immutable;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace StepMotor
@@ -71,6 +70,16 @@ namespace StepMotor
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
+        public static Task<int> GetActualPositionAsync(
+            this IAsyncMotor motor,
+            MotorBank motorOrBank)
+            => motor?.InvokeCommandAsync(
+                   Command.GetAxisParameter,
+                   0,
+                   CommandParam.AxisParameter.EncoderPosition,
+                   motorOrBank)
+               ?? throw new ArgumentNullException(nameof(motor));
+
         public static async Task<bool> IsTargetPositionReachedAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
@@ -82,6 +91,20 @@ namespace StepMotor
                         0, 
                         CommandParam.AxisParameter.TargetPositionReached, 
                         motorOrBank) is 1,
+                null => throw new ArgumentNullException(nameof(motor))
+            };
+
+        public static async Task<bool> IsInMotionAsync(
+            this IAsyncMotor motor,
+            MotorBank motorOrBank = default)
+            => motor switch
+            {
+                not null =>
+                    await motor.InvokeCommandAsync(
+                        Command.GetAxisParameter,
+                        0,
+                        CommandParam.AxisParameter.ActualSpeed,
+                        motorOrBank) is not 0,
                 null => throw new ArgumentNullException(nameof(motor))
             };
     }

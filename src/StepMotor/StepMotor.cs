@@ -141,22 +141,22 @@ namespace StepMotor
         //    throw LogThenFail();
         //}
 
-        public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,
-                CommandParam.AxisParameter.EncoderPosition,
-                motorOrBank);
+        //public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(
+        //        Command.GetAxisParameter,
+        //        0,
+        //        CommandParam.AxisParameter.EncoderPosition,
+        //        motorOrBank);
 
-            if (reply.IsSuccess)
-            {
-                Logger?.LogInformation("{StepMotor}: Actual position = {ActualPosition}", Id, reply.ReturnValue);
-                return reply.ReturnValue;
-            }
+        //    if (reply.IsSuccess)
+        //    {
+        //        Logger?.LogInformation("{StepMotor}: Actual position = {ActualPosition}", Id, reply.ReturnValue);
+        //        return reply.ReturnValue;
+        //    }
 
-            throw LogThenFail();
-        }
+        //    throw LogThenFail();
+        //}
 
         //public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
         //{
@@ -175,22 +175,22 @@ namespace StepMotor
         //    throw LogThenFail();
         //}
 
-        public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.GetAxisParameter,
-                0,
-                CommandParam.AxisParameter.ActualSpeed,
-                motorOrBank);
+        //public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(
+        //        Command.GetAxisParameter,
+        //        0,
+        //        CommandParam.AxisParameter.ActualSpeed,
+        //        motorOrBank);
 
-            if (reply.IsSuccess)
-            {
-                Logger?.LogInformation("{StepMotor}: Step motor is in motion: {InMotion}", Id, reply.ReturnValue != 0);
-                return reply.ReturnValue != 0;
-            }
+        //    if (reply.IsSuccess)
+        //    {
+        //        Logger?.LogInformation("{StepMotor}: Step motor is in motion: {InMotion}", Id, reply.ReturnValue != 0);
+        //        return reply.ReturnValue != 0;
+        //    }
 
-            throw LogThenFail();
-        }
+        //    throw LogThenFail();
+        //}
 
 
         public async Task StopAsync(MotorBank motorOrBank = default)

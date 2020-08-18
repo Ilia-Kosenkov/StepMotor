@@ -45,7 +45,7 @@ namespace StepMotor
 
         //Task<int> GetPositionAsync(MotorBank motorOrBank = default);
 
-        Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
+        //Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
         Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
 
@@ -65,7 +65,7 @@ namespace StepMotor
             CommandParam param,
             MotorBank motorOrBank = default);
 
-        Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
+        //Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
         Task StopAsync(MotorBank motorOrBank = default);
     }
 }

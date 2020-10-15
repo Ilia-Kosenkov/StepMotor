@@ -1,67 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <AssemblyVersion>0.1.36.1100</AssemblyVersion>
-    <FileVersion>0.1.36.1100</FileVersion>
-    <Version>0.1.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageProjectUrl>https://github.com/Ilia-Kosenkov/StepMotor</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Ilia-Kosenkov/StepMotor</RepositoryUrl>
-    <Authors>Ilia Kosenkov</Authors>
-    <Description>A set of APIs to control Trinamic's stepper motors</Description>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<AssemblyVersion>0.1.45.1706</AssemblyVersion>
+		<FileVersion>0.1.45.1706</FileVersion>
+		<Version>0.1.0</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageProjectUrl>https://github.com/Ilia-Kosenkov/StepMotor</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Ilia-Kosenkov/StepMotor</RepositoryUrl>
+		<Authors>Ilia Kosenkov</Authors>
+		<Description>A set of APIs to control Trinamic's stepper motors</Description>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
-    <UpdateAssemblyVersion>True</UpdateAssemblyVersion>
-    <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
-    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
-    <AssemblyVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyVersionSettings>
-    <UpdatePackageVersion>True</UpdatePackageVersion>
-    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
-    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
-    <AssemblyFileVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyFileVersionSettings>
-    <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<ShouldCreateLogs>True</ShouldCreateLogs>
+		<AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
+		<UpdateAssemblyVersion>True</UpdateAssemblyVersion>
+		<UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
+		<UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+		<AssemblyVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyVersionSettings>
+		<UpdatePackageVersion>True</UpdatePackageVersion>
+		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+		<AssemblyFileVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyFileVersionSettings>
+		<PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+		<PlatformTarget>x86</PlatformTarget>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<PlatformTarget>x64</PlatformTarget>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
-    <UpdateAssemblyVersion>True</UpdateAssemblyVersion>
-    <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
-    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
-    <AssemblyVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyVersionSettings>
-    <UpdatePackageVersion>True</UpdatePackageVersion>
-    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
-    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
-    <AssemblyFileVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyFileVersionSettings>
-    <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<ShouldCreateLogs>True</ShouldCreateLogs>
+		<AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
+		<UpdateAssemblyVersion>True</UpdateAssemblyVersion>
+		<UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
+		<UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+		<AssemblyVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyVersionSettings>
+		<UpdatePackageVersion>True</UpdatePackageVersion>
+		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+		<AssemblyFileVersionSettings>IncrementOnDemand.IncrementOnDemand.IncrementWithResetOnIncrease.TimeStamp</AssemblyFileVersionSettings>
+		<PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3" />
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-    <PackageReference Include="System.IO.Ports" Version="4.7.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.9" />
+		<PackageReference Include="System.IO.Ports" Version="4.7.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+		<PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+		<PackageReference Include="System.Buffers" Version="4.5.1" />
+		<PackageReference Include="System.Memory" Version="4.5.4" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
 
 </Project>

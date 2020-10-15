@@ -4,6 +4,10 @@ namespace StepMotor.Union
 {
     public abstract class CommandParam
     {
+        public static DefaultParam Default { get; } = new DefaultParam();
+
+        internal CommandParam() {}
+
         protected abstract byte AsByte();
 
         public static explicit operator byte(CommandParam param) => param.AsByte();
@@ -14,6 +18,11 @@ namespace StepMotor.Union
         public static implicit operator CommandParam(global::StepMotor.CommandParam.AxisParameter @param) => new AxisParameter(@param);
 
 
+    }
+
+    public sealed class DefaultParam : CommandParam
+    {
+        protected override byte AsByte() => 0;
     }
 
     public sealed class RefSearchType : CommandParam

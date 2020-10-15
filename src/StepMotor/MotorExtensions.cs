@@ -7,6 +7,7 @@ namespace StepMotor
 {
     public static class MotorExtensions
     {
+
         public static Task<Reply> 
             MoveToPosition(
             IAsyncMotor motor,

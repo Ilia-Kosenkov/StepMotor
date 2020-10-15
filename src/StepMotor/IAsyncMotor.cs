@@ -23,7 +23,6 @@
 #nullable enable
 
 using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,12 +44,12 @@ namespace StepMotor
 
         Task<Reply> SendCommandAsync(
             Command command, int argument,
-            CommandParam param, MotorBank motorOrBank = default);
+            Union.CommandParam param, MotorBank motorOrBank = default);
 
         Task<int> InvokeCommandAsync(
             Command command,
             int argument,
-            CommandParam param,
+            Union.CommandParam param,
             MotorBank motorOrBank = default);
        
     }

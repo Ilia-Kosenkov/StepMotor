@@ -103,19 +103,20 @@ namespace StepMotor
 
         public virtual Task<Reply> SendCommandAsync(
             Command command, int argument,
-            CommandParam param, MotorBank motorOrBank = default) =>
+            Union.CommandParam param, MotorBank motorOrBank = default) =>
             SendCommandAsync(
                 command,
                 argument,
-                param,
+                (byte)param,
                 Address,
                 motorOrBank,
                 TimeOut);
+        
 
         public async Task<int> InvokeCommandAsync(
             Command command, 
             int argument, 
-            CommandParam param, 
+            Union.CommandParam param, 
             MotorBank motorOrBank = default) 
             => await SendCommandAsync(command, argument, param, motorOrBank) switch
             {

@@ -73,8 +73,8 @@ namespace DebugTests
             CollectionAssert.AreEquivalent(new[] { 0, 0 }, positions);
 
             var responses = await Task.WhenAll(
-                _handler1.SendCommandAsync(Command.MoveToPosition, param, CommandParam.MoveType.Absolute),
-                _handler2.SendCommandAsync(Command.MoveToPosition, param, CommandParam.MoveType.Absolute));
+                _handler1.SendCommandAsync(Command.MoveToPosition, param, MoveType.Absolute),
+                _handler2.SendCommandAsync(Command.MoveToPosition, param, MoveType.Absolute));
             CollectionAssert.AreEquivalent(new[] {true, true}, responses.Select(x => x.Status == ReturnStatus.Success));
 
             await Task.WhenAll(_handler1.WaitForPositionReachedAsync(), _handler2.WaitForPositionReachedAsync());

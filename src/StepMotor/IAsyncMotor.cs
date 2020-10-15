@@ -31,7 +31,6 @@ namespace StepMotor
     public interface IAsyncMotor : IDisposable, IAsyncDisposable
     {
         Address Address { get; }
-
         Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
         Task ReferenceReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default);
 

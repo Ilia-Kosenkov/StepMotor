@@ -46,7 +46,7 @@ namespace DebugTests
             var devices =
                 await Task.WhenAll(ports.Select(x => new SerialPort(x)).Select(async x => (Port: x, Addresses: await factory.FindDeviceAsync(x))));
 
-            Assert.IsTrue(devices.Any(x => x.Addresses.Count > 0));
+            Assert.IsTrue(devices.Any(x => x.Addresses?.Count > 0));
 
            foreach(var (port, _) in devices)
                 port.Dispose();
@@ -78,7 +78,7 @@ namespace DebugTests
         {
 
             // ReSharper disable once RedundantArgumentDefaultValue
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, 10000, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, 10000, MoveType.Absolute);
             Assert.AreEqual(ReturnStatus.Success, reply.Status);
 
             await Task.Delay(TimeSpan.FromMilliseconds(500));
@@ -128,7 +128,7 @@ namespace DebugTests
 
 
             // Rotates to target position
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, MoveType.Absolute);
             Assume.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
             Assert.That(async () => await _motor.WaitForPositionReachedAsync(CancellationToken.None), Throws.Nothing);
 
@@ -154,7 +154,7 @@ namespace DebugTests
             Assert.AreEqual(0, await _motor.GetPositionAsync());
 
             // Rotates to target position
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, 51400, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, 51400, MoveType.Absolute);
             Assert.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
             await _motor.WaitForPositionReachedAsync();
             Assert.AreEqual(51400, await _motor.GetPositionAsync());
@@ -173,7 +173,7 @@ namespace DebugTests
             Assume.That(await _motor.GetPositionAsync(), Is.EqualTo(0));
 
             // Rotates to target position
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, MoveType.Absolute);
             Assume.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
             Assert.ThrowsAsync<TimeoutException>(() =>
                 _motor.WaitForPositionReachedAsync(timeOut: TimeSpan.FromMilliseconds(350)));
@@ -196,7 +196,7 @@ namespace DebugTests
 
 
             // Rotates to target position
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, MoveType.Absolute);
             Assume.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
 
             Assert.IsTrue(await _motor.IsInMotionAsync());
@@ -226,7 +226,7 @@ namespace DebugTests
             Assert.AreEqual(0, await _motor.GetPositionAsync());
 
             // Rotates to target position
-            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, CommandParam.MoveType.Absolute);
+            var reply = await _motor.SendCommandAsync(Command.MoveToPosition, pos, MoveType.Absolute);
             Assume.That(reply.Status, Is.EqualTo(ReturnStatus.Success));
 
             Assert.IsTrue(await _motor.IsInMotionAsync());
@@ -234,7 +234,7 @@ namespace DebugTests
 
             await Task.Delay(TimeSpan.FromMilliseconds(200));
 
-            await _motor.StopAsync();
+            await _motor.SendCommandAsync(Command.MotorStop, default, CommandParam.Default);
 
             await Task.Delay(TimeSpan.FromMilliseconds(200));
 
@@ -261,7 +261,7 @@ namespace DebugTests
 
             for (var i = 0; i < n; i++)
             {
-                await _motor.SendCommandAsync(Command.MoveToPosition, step, CommandParam.MoveType.Relative);
+                await _motor.SendCommandAsync(Command.MoveToPosition, step, MoveType.Relative);
                 await _motor.WaitForPositionReachedAsync();
                 await Task.Delay(timeout);
             }

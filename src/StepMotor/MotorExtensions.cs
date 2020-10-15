@@ -10,7 +10,7 @@ namespace StepMotor
 
         public static Task<Reply> 
             MoveToPosition(
-            IAsyncMotor motor,
+            this IAsyncMotor motor,
             int position,
             MoveParam? type = null,
             MotorBank motorOrBank = default)
@@ -37,7 +37,7 @@ namespace StepMotor
             GetAxisParameterAsync(
                 this IAsyncMotor motor,
                 AxisParam param,
-                MotorBank motorOrBank)
+                MotorBank motorOrBank = default)
             => motor?.InvokeCommandAsync(
                    Command.GetAxisParameter,
                    0,
@@ -83,7 +83,7 @@ namespace StepMotor
         public static Task<int> 
             GetPositionAsync(
             this IAsyncMotor motor,
-            MotorBank motorOrBank)
+            MotorBank motorOrBank = default)
             => motor?.InvokeCommandAsync(
                    Command.GetAxisParameter,
                    0,
@@ -94,7 +94,7 @@ namespace StepMotor
         public static Task<int> 
             GetActualPositionAsync(
             this IAsyncMotor motor,
-            MotorBank motorOrBank)
+            MotorBank motorOrBank = default)
             => motor?.InvokeCommandAsync(
                    Command.GetAxisParameter,
                    0,

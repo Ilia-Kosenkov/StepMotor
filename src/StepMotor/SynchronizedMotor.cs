@@ -163,29 +163,6 @@ namespace StepMotor
 
 
 
-        public override async Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(
-            MotorBank motorOrBank = default)
-        {
-            var builder = ImmutableDictionary.CreateBuilder<CommandParam.AxisParameter, int>();
-
-            // For each basic Axis Parameter queries its value
-            // Uses explicit conversion of byte to AxisParameter
-            foreach (var param in CommandParam.GeneralAxisParams)
-            {
-                try
-                {
-                    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
-                    if (reply.IsSuccess)
-                        builder.Add(param, reply.ReturnValue);
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
-            }
-            return builder.ToImmutable();
-        }
-
         public  override void Dispose()
         {
             Port.DataReceived -= Port_DataReceived;

@@ -193,33 +193,33 @@ namespace StepMotor
         //}
 
 
-        public async Task StopAsync(MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(
-                Command.MotorStop,
-                0,
-                CommandParam.RefSearchType.Stop,
-                motorOrBank);
-            if (!reply.IsSuccess)
-                throw LogThenFail();
+        //public async Task StopAsync(MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(
+        //        Command.MotorStop,
+        //        0,
+        //        CommandParam.RefSearchType.Stop,
+        //        motorOrBank);
+        //    if (!reply.IsSuccess)
+        //        throw LogThenFail();
 
-            Logger?.LogWarning("{StepMotor}: Motor was forced to stop", Id);
-        }
+        //    Logger?.LogWarning("{StepMotor}: Motor was forced to stop", Id);
+        //}
 
 
-        public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
-        {
-            var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
-            if (reply.IsSuccess)
-            {
-                Logger?.LogInformation("{StepMotor}: {AxisParam} = {Value}", Id, param, reply.ReturnValue);
-                return reply.ReturnValue;
-            }
+        //public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
+        //{
+        //    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
+        //    if (reply.IsSuccess)
+        //    {
+        //        Logger?.LogInformation("{StepMotor}: {AxisParam} = {Value}", Id, param, reply.ReturnValue);
+        //        return reply.ReturnValue;
+        //    }
 
-            throw LogThenFail(
-                $"{nameof(Command.GetAxisParameter)} failed to retrieve axis parameter.",
-                "{StepMotor}: Failed retrieving {AxisParam}", param);
-        }
+        //    throw LogThenFail(
+        //        $"{nameof(Command.GetAxisParameter)} failed to retrieve axis parameter.",
+        //        "{StepMotor}: Failed retrieving {AxisParam}", param);
+        //}
 
 
         public virtual async Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default)
@@ -277,6 +277,7 @@ namespace StepMotor
             TimeSpan timeOut = default,
             MotorBank motorOrBank = default)
         {
+            //TODO : Move exception logging here
             try
             {
                 token.ThrowIfCancellationRequested();
@@ -288,7 +289,7 @@ namespace StepMotor
                     motorOrBank);
 
                 if (!reply.IsSuccess)
-                    throw new InvalidOperationException("Filed to query target position.");
+                    throw new InvalidOperationException("Failed to query target position.");
 
                 var target = reply.ReturnValue;
                 var current = await this.GetPositionAsync(motorOrBank);
@@ -298,7 +299,7 @@ namespace StepMotor
                 if (!await this.IsTargetPositionReachedAsync(motorOrBank))
                 {
                     token.ThrowIfCancellationRequested();
-                    var status = await GetRotationStatusAsync(motorOrBank);
+                    var status = await this.GetRotationStatusAsync(motorOrBank);
                     var delayMs = Math.Max(
                         125 * Math.Abs(status[CommandParam.AxisParameter.TargetPosition] -
                                        status[CommandParam.AxisParameter.ActualPosition]) /
@@ -336,7 +337,9 @@ namespace StepMotor
                 throw;
             }
         }
-        public virtual async Task ReturnToOriginAsync(CancellationToken token = default, MotorBank motorOrBank = default)
+        public virtual async Task ReturnToOriginAsync(
+            CancellationToken token = default, 
+            MotorBank motorOrBank = default)
         {
             try
             {
@@ -421,7 +424,6 @@ namespace StepMotor
             }
         }
 
-        public abstract Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
         public abstract Task<bool> TrySwitchToBinary();
 
         public override string ToString() => Id.ToString();

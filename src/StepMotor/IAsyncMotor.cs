@@ -47,11 +47,11 @@ namespace StepMotor
 
         //Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
 
-        Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
+        //Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
 
         
 
-        Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
+        //Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
 
         Task<bool> TrySwitchToBinary();
 
@@ -66,6 +66,6 @@ namespace StepMotor
             MotorBank motorOrBank = default);
 
         //Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
-        Task StopAsync(MotorBank motorOrBank = default);
+        //Task StopAsync(MotorBank motorOrBank = default);
     }
 }

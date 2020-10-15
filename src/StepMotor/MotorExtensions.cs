@@ -7,7 +7,8 @@ namespace StepMotor
 {
     public static class MotorExtensions
     {
-        public static Task<Reply> MoveToPosition(
+        public static Task<Reply> 
+            MoveToPosition(
             IAsyncMotor motor,
             int position,
             CommandParam.MoveType type = CommandParam.MoveType.Absolute,
@@ -15,15 +16,29 @@ namespace StepMotor
             => motor?.SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
-        public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetStatusAsync(
+        public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>> 
+            GetStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
             => GetAxisParametersAsync(motor, CommandParam.RotationAxisParams, motorOrBank);
 
-        public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(
+        public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>> 
+            GetRotationStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
             => GetAxisParametersAsync(motor, CommandParam.GeneralAxisParams, motorOrBank);
+
+        public static Task<int>
+            GetAxisParameterAsync(
+                this IAsyncMotor motor,
+                CommandParam.AxisParameter param,
+                MotorBank motorOrBank)
+            => motor?.InvokeCommandAsync(
+                   Command.GetAxisParameter,
+                   0,
+                   CommandParam.AxisParameter.ActualPosition,
+                   motorOrBank)
+               ?? throw new ArgumentNullException(nameof(motor));
 
         public static Task<ImmutableDictionary<CommandParam.AxisParameter, int>>
             GetAxisParametersAsync(
@@ -60,7 +75,8 @@ namespace StepMotor
         }
 
 
-        public static Task<int> GetPositionAsync(
+        public static Task<int> 
+            GetPositionAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank)
             => motor?.InvokeCommandAsync(
@@ -70,7 +86,8 @@ namespace StepMotor
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
-        public static Task<int> GetActualPositionAsync(
+        public static Task<int> 
+            GetActualPositionAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank)
             => motor?.InvokeCommandAsync(
@@ -80,7 +97,8 @@ namespace StepMotor
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
-        public static async Task<bool> IsTargetPositionReachedAsync(
+        public static async Task<bool> 
+            IsTargetPositionReachedAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
             => motor switch
@@ -94,7 +112,8 @@ namespace StepMotor
                 null => throw new ArgumentNullException(nameof(motor))
             };
 
-        public static async Task<bool> IsInMotionAsync(
+        public static async Task<bool> 
+            IsInMotionAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
             => motor switch

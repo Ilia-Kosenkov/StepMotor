@@ -36,7 +36,7 @@ namespace DebugTests
     {
         private IAsyncMotor? _device;
         private SerialPort? _port;
-        private const string TestPort = @"COM4";
+        private const string TestPort = @"COM2";
         private IAsyncMotorFactory? _factory;
 
         [SetUp]
@@ -110,7 +110,7 @@ namespace DebugTests
     {
         private SerialPort? _port;
         private IAsyncMotor? _motor;
-        private const string PortName = @"COM4";
+        private const string PortName = @"COM2";
 
         [SetUp]
         public async Task SetUp()

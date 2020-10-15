@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{4953C2D0-7958-4BBA-AC0C-00CEAC2E0590}</ProjectGuid>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net4.8</TargetFrameworks>
+    <!--<TargetFrameworks>net4.8</TargetFrameworks>-->
+    <LangVersion>9</LangVersion>
     <AssemblyTitle>DebugTests</AssemblyTitle>
     <Product>DebugTests</Product>
     <Copyright>Copyright ©  2019</Copyright>

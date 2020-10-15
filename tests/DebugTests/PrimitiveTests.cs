@@ -15,7 +15,7 @@ namespace DebugTests
         {
             
             IAsyncMotorFactory factory = new StepMotorProvider<SynchronizedMotor>(NUnitLogger.Instance);
-            var port = new SerialPort("COM4");
+            var port = new SerialPort("COM1");
             var motor = await factory.TryCreateFromAddressAsync(port, 1, TimeSpan.FromSeconds(2));
             Assert.That(motor, Is.Not.Null);
             await motor!.MoveToPosition(1000);

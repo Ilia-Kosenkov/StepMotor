@@ -46,7 +46,7 @@ namespace DebugTests
             //var factory = new StepMotorFactory();
             var factory = new StepMotorProvider<SynchronizedMotor>(NUnitLogger.Instance);
             _port1 = new SerialPort(@"COM1");
-            _port2 = new SerialPort(@"COM4");
+            _port2 = new SerialPort(@"COM2");
 
             _handler1 = await factory.CreateFirstOrFromAddressAsync(_port1, 1);
             _handler2 = await factory.CreateFirstOrFromAddressAsync(_port2, 1);

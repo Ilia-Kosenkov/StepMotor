@@ -49,7 +49,7 @@ namespace StepMotor.Union
 
         public static implicit operator CommandParam(RefSearchType type) => new RefSearchParam(type);
         public static implicit operator CommandParam(MoveType type) => new MoveParam(type);
-        public static implicit operator CommandParam(global::StepMotor.CommandParam.CalcType type) => new CalcParam(type);
+        public static implicit operator CommandParam(CalcType type) => new CalcParam(type);
         public static implicit operator CommandParam(AxisParameterType @param) => new AxisParam(@param);
 
 
@@ -88,14 +88,14 @@ namespace StepMotor.Union
 
     public sealed class CalcParam : CommandParam
     {
-        public global::StepMotor.CommandParam.CalcType Value { get; }
+        public CalcType Value { get; }
 
-        public CalcParam(global::StepMotor.CommandParam.CalcType type) => Value = type;
+        public CalcParam(CalcType type) => Value = type;
 
 
         protected override byte AsByte() => (byte)Value;
 
-        public static implicit operator CalcParam(global::StepMotor.CommandParam.CalcType type) => new CalcParam(type);
+        public static implicit operator CalcParam(CalcType type) => new CalcParam(type);
 
     }
 

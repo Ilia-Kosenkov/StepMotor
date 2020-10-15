@@ -25,33 +25,19 @@ using System.Runtime.Serialization;
 
 namespace StepMotor
 {
-    public sealed partial class CommandParam
+    [DataContract]
+    public enum CalcType : byte
     {
-        [DataContract]
-        public enum CalcType : byte
-        {
-            [EnumMember]
-            Add = 0,
-            [EnumMember]
-            Subtract = 1,
-            [EnumMember]
-            Multiply = 2,
-            [EnumMember]
-            Divide = 3,
-            [EnumMember]
-            Modulo = 4,
-            [EnumMember]
-            And = 5,
-            [EnumMember]
-            Or = 6,
-            [EnumMember]
-            Xor = 7,
-            [EnumMember]
-            Not = 8,
-            [EnumMember]
-            Load = 9,
-            [EnumMember]
-            Swap = 10,
-        }
+        [EnumMember] Add = 0,
+        [EnumMember] Subtract = 1,
+        [EnumMember] Multiply = 2,
+        [EnumMember] Divide = 3,
+        [EnumMember] Modulo = 4,
+        [EnumMember] And = 5,
+        [EnumMember] Or = 6,
+        [EnumMember] Xor = 7,
+        [EnumMember] Not = 8,
+        [EnumMember] Load = 9,
+        [EnumMember] Swap = 10,
     }
 }

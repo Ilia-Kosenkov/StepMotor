@@ -281,27 +281,27 @@ namespace StepMotor
         {
             try
             {
-                var reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Start,
+                var reply = await SendCommandAsync(Command.ReferenceSearch, 0, RefSearchType.Start,
                     motorOrBank);
                 if (!reply.IsSuccess)
                     throw new InvalidOperationException("Failed to start reference search.");
 
                 if (token.IsCancellationRequested)
                 {
-                    await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop, motorOrBank);
+                    await SendCommandAsync(Command.ReferenceSearch, 0, RefSearchType.Stop, motorOrBank);
                     token.ThrowIfCancellationRequested();
                 }
 
                 var deltaMs = 200;
 
-                while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Status,
+                while ((reply = await SendCommandAsync(Command.ReferenceSearch, 0, RefSearchType.Status,
                            motorOrBank))
                        .IsSuccess
                        && reply.ReturnValue != 0)
                 {
                     if (token.IsCancellationRequested)
                     {
-                        await SendCommandAsync(Command.ReferenceSearch, 0, CommandParam.RefSearchType.Stop,
+                        await SendCommandAsync(Command.ReferenceSearch, 0, RefSearchType.Stop,
                             motorOrBank);
                         token.ThrowIfCancellationRequested();
                     }

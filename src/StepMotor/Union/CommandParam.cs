@@ -47,7 +47,7 @@ namespace StepMotor.Union
 
         public static explicit operator byte(CommandParam param) => param.AsByte();
 
-        public static implicit operator CommandParam(global::StepMotor.CommandParam.RefSearchType type) => new RefSearchType(type);
+        public static implicit operator CommandParam(RefSearchType type) => new RefSearchParam(type);
         public static implicit operator CommandParam(global::StepMotor.CommandParam.MoveType type) => new MoveType(type);
         public static implicit operator CommandParam(global::StepMotor.CommandParam.CalcType type) => new CalcType(type);
         public static implicit operator CommandParam(AxisParameterType @param) => new AxisParameter(@param);
@@ -60,16 +60,16 @@ namespace StepMotor.Union
         protected override byte AsByte() => 0;
     }
 
-    public sealed class RefSearchType : CommandParam
+    public sealed class RefSearchParam : CommandParam
     {
-        public global::StepMotor.CommandParam.RefSearchType Value { get; }
+        public RefSearchType Value { get; }
 
-        public RefSearchType(global::StepMotor.CommandParam.RefSearchType type) => Value = type;
+        public RefSearchParam(RefSearchType type) => Value = type;
 
 
         protected override byte AsByte() => (byte) Value;
 
-        public static implicit operator RefSearchType(global::StepMotor.CommandParam.RefSearchType type) => new RefSearchType(type);
+        public static implicit operator RefSearchParam(RefSearchType type) => new RefSearchParam(type);
 
     }
 

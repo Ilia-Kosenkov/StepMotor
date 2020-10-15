@@ -24,17 +24,11 @@ using System.Runtime.Serialization;
 
 namespace StepMotor
 {
-    public sealed partial class CommandParam
+    [DataContract]
+    public enum RefSearchType : byte
     {
-        [DataContract]
-        public enum RefSearchType : byte
-        {
-            [EnumMember]
-            Start = 0,
-            [EnumMember]
-            Stop = 1,
-            [EnumMember]
-            Status = 2,
-        }
+        [EnumMember] Start = 0,
+        [EnumMember] Stop = 1,
+        [EnumMember] Status = 2,
     }
 }

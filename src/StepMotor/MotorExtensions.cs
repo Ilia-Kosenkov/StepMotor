@@ -13,9 +13,13 @@ namespace StepMotor
             MoveToPosition(
             IAsyncMotor motor,
             int position,
-            CommandParam.MoveType type = CommandParam.MoveType.Absolute,
+            MoveParam? type = null,
             MotorBank motorOrBank = default)
-            => motor?.SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank)
+            => motor?.SendCommandAsync(
+                   Command.MoveToPosition, 
+                   position, 
+                   type ?? (Union.CommandParam)Union.CommandParam.Default, 
+                   motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
         public static Task<ImmutableDictionary<AxisParam, int>> 

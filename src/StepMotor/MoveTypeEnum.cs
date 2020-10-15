@@ -25,14 +25,11 @@ using System.Runtime.Serialization;
 
 namespace StepMotor
 {
-    public sealed partial class CommandParam
+    [DataContract]
+    public enum MoveType : byte
     {
-        [DataContract]
-        public enum MoveType : byte
-        {
-            [EnumMember] Absolute = 0,
-            [EnumMember] Relative = 1,
-            [EnumMember] Coordinates = 2
-        }
+        [EnumMember] Absolute = 0,
+        [EnumMember] Relative = 1,
+        [EnumMember] Coordinates = 2
     }
 }

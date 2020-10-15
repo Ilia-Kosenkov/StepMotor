@@ -28,6 +28,7 @@ using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using StepMotor.Union;
 
 namespace StepMotor
 {
@@ -249,7 +250,7 @@ namespace StepMotor
 
                 var reply = await SendCommandAsync(
                     Command.MoveToPosition,
-                    0, (byte) CommandParam.MoveType.Absolute,
+                    0, (byte) MoveType.Absolute,
                     Address,
                     motorOrBank,
                     default, token);

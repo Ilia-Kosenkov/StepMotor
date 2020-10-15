@@ -4,8 +4,8 @@
 		<TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-		<AssemblyVersion>0.1.56.2134</AssemblyVersion>
-		<FileVersion>0.1.56.2134</FileVersion>
+		<AssemblyVersion>0.1.59.2140</AssemblyVersion>
+		<FileVersion>0.1.59.2140</FileVersion>
 		<Version>0.1.0</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageProjectUrl>https://github.com/Ilia-Kosenkov/StepMotor</PackageProjectUrl>

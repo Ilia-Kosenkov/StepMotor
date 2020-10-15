@@ -31,13 +31,13 @@ namespace StepMotor
 {
     public sealed partial class CommandParam
     {
-        public static ImmutableArray<AxisParameter> GeneralAxisParams { get; }
-            = Enum.GetValues(typeof(AxisParameter))
-                .OfType<AxisParameter>()
+        public static ImmutableArray<AxisParameterType> GeneralAxisParams { get; }
+            = Enum.GetValues(typeof(AxisParameterType))
+                .OfType<AxisParameterType>()
                 .Take(15)
                 .ToImmutableArray();
 
-        public static ImmutableArray<AxisParameter> RotationAxisParams { get; }
+        public static ImmutableArray<AxisParameterType> RotationAxisParams { get; }
             = GeneralAxisParams
                 .Take(6)
                 .ToImmutableArray();
@@ -47,7 +47,7 @@ namespace StepMotor
         public RefSearchType? RefSearch { get; }
         public MoveType? Move { get; }
 
-        public AxisParameter? AxisParam { get; }
+        public AxisParameterType? AxisParam { get; }
 
         public bool IsDefault =>
             Calculation is null
@@ -67,7 +67,7 @@ namespace StepMotor
         public CommandParam(CalcType type) => Calculation = type;
         public CommandParam(RefSearchType type) => RefSearch = type;
         public CommandParam(MoveType type) => Move = type;
-        public CommandParam(AxisParameter type) => AxisParam = type;
+        public CommandParam(AxisParameterType type) => AxisParam = type;
 
 
         public object GetValue()
@@ -132,7 +132,7 @@ namespace StepMotor
             new CommandParam(type);
         public static implicit operator CommandParam(MoveType type) =>
             new CommandParam(type);
-        public static implicit operator CommandParam(AxisParameter type) =>
+        public static implicit operator CommandParam(AxisParameterType type) =>
             new CommandParam(type);
     }
 }

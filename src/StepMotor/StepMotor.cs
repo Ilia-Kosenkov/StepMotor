@@ -136,11 +136,11 @@ namespace StepMotor
                 {
                     token.ThrowIfCancellationRequested();
                     var targetPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
-                        CommandParam.AxisParameter.TargetPosition, motorOrBank);
+                        AxisParameterType.TargetPosition, motorOrBank);
                     var actualPosition = await SendCommandAsync(Command.GetAxisParameter, 0,
-                        CommandParam.AxisParameter.ActualPosition, motorOrBank);
+                        AxisParameterType.ActualPosition, motorOrBank);
                     var maximumSpeed = await SendCommandAsync(Command.GetAxisParameter, 0,
-                        CommandParam.AxisParameter.MaximumSpeed, motorOrBank);
+                        AxisParameterType.MaximumSpeed, motorOrBank);
 
                     var delayMs = 250;
                     if (targetPosition.IsSuccess && actualPosition.IsSuccess && maximumSpeed.IsSuccess)
@@ -187,7 +187,7 @@ namespace StepMotor
 
                 var reply = await SendCommandAsync(
                     Command.GetAxisParameter, 0,
-                    CommandParam.AxisParameter.TargetPosition,
+                    AxisParameterType.TargetPosition,
                     motorOrBank);
 
                 if (!reply.IsSuccess)
@@ -196,16 +196,16 @@ namespace StepMotor
                 var target = reply.ReturnValue;
                 var current = await this.GetPositionAsync(motorOrBank);
 
-                progressReporter?.Report((current, target));
+                progressReporter?.Report(new RotationProgress(current, target));
 
                 if (!await this.IsTargetPositionReachedAsync(motorOrBank))
                 {
                     token.ThrowIfCancellationRequested();
                     var status = await this.GetRotationStatusAsync(motorOrBank);
                     var delayMs = Math.Max(
-                        125 * Math.Abs(status[CommandParam.AxisParameter.TargetPosition] -
-                                       status[CommandParam.AxisParameter.ActualPosition]) /
-                        (SpeedFactor * status[CommandParam.AxisParameter.MaximumSpeed]),
+                        125 * Math.Abs(status[AxisParameterType.TargetPosition] -
+                                       status[AxisParameterType.ActualPosition]) /
+                        (SpeedFactor * status[AxisParameterType.MaximumSpeed]),
                         250);
 
                     while (!await this.IsTargetPositionReachedAsync(motorOrBank))

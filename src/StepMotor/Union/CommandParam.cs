@@ -1,21 +1,56 @@
-﻿#nullable enable
+﻿using System;
+using System.Collections.Immutable;
+
+#nullable enable
 
 namespace StepMotor.Union
 {
     public abstract class CommandParam
     {
+        public static ImmutableArray<AxisParameter> GeneralAxisParams { get; }
+            = new AxisParameter[]
+            {
+                AxisParameterType.TargetPosition,
+                AxisParameterType.ActualPosition,
+                AxisParameterType.TargetSpeed,
+                AxisParameterType.ActualSpeed,
+                AxisParameterType.MaximumSpeed,
+                AxisParameterType.MaximumAcceleration,
+                AxisParameterType.AbsoluteMaximumCurrent,
+                AxisParameterType.StandbyCurrent,
+                AxisParameterType.TargetPositionReached,
+                AxisParameterType.ReferenceSwitchStatus,
+                AxisParameterType.RightLimitSwitchStatus,
+                AxisParameterType.LeftLimitSwitchStatus,
+                AxisParameterType.RightLimitSwitchDisable,
+                AxisParameterType.LeftLimitSwitchDisable,
+                AxisParameterType.StepRatePreScaler
+            }.ToImmutableArray();
+
+        public static ImmutableArray<AxisParameter> RotationAxisParams { get; }
+            = new AxisParameter[]
+            {
+                AxisParameterType.TargetPosition,
+                AxisParameterType.ActualPosition,
+                AxisParameterType.TargetSpeed,
+                AxisParameterType.ActualSpeed,
+                AxisParameterType.MaximumSpeed,
+                AxisParameterType.MaximumAcceleration
+            }.ToImmutableArray();
         public static DefaultParam Default { get; } = new DefaultParam();
 
         internal CommandParam() {}
 
         protected abstract byte AsByte();
 
+        public override int GetHashCode() => HashCode.Combine(GetType(), AsByte());
+
         public static explicit operator byte(CommandParam param) => param.AsByte();
 
         public static implicit operator CommandParam(global::StepMotor.CommandParam.RefSearchType type) => new RefSearchType(type);
         public static implicit operator CommandParam(global::StepMotor.CommandParam.MoveType type) => new MoveType(type);
         public static implicit operator CommandParam(global::StepMotor.CommandParam.CalcType type) => new CalcType(type);
-        public static implicit operator CommandParam(global::StepMotor.CommandParam.AxisParameter @param) => new AxisParameter(@param);
+        public static implicit operator CommandParam(AxisParameterType @param) => new AxisParameter(@param);
 
 
     }
@@ -66,14 +101,14 @@ namespace StepMotor.Union
 
     public sealed class AxisParameter : CommandParam
     {
-        public global::StepMotor.CommandParam.AxisParameter Value { get; }
+        public AxisParameterType Value { get; }
 
-        public AxisParameter(global::StepMotor.CommandParam.AxisParameter @param) => Value = @param;
+        public AxisParameter(AxisParameterType @param) => Value = @param;
 
 
         protected override byte AsByte() => (byte)Value;
 
-        public static implicit operator AxisParameter(global::StepMotor.CommandParam.AxisParameter @param) => new AxisParameter(@param);
+        public static implicit operator AxisParameter(AxisParameterType @param) => new AxisParameter(@param);
 
     }
 }

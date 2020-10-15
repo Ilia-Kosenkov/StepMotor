@@ -24,7 +24,6 @@
 
 using System;
 using System.Buffers;
-using System.Collections.Immutable;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
@@ -124,103 +123,6 @@ namespace StepMotor
                 _ => throw LogThenFail()
             };
 
-        //public async Task<int> GetPositionAsync(MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(
-        //        Command.GetAxisParameter,
-        //        0,
-        //        CommandParam.AxisParameter.ActualPosition,
-        //        motorOrBank);
-
-        //    if (reply.IsSuccess)
-        //    {
-        //        Logger?.LogInformation("{StepMotor}: Position = {Position}", Id, reply.ReturnValue);
-        //        return reply.ReturnValue;
-        //    }
-
-        //    throw LogThenFail();
-        //}
-
-        //public async Task<int> GetActualPositionAsync(MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(
-        //        Command.GetAxisParameter,
-        //        0,
-        //        CommandParam.AxisParameter.EncoderPosition,
-        //        motorOrBank);
-
-        //    if (reply.IsSuccess)
-        //    {
-        //        Logger?.LogInformation("{StepMotor}: Actual position = {ActualPosition}", Id, reply.ReturnValue);
-        //        return reply.ReturnValue;
-        //    }
-
-        //    throw LogThenFail();
-        //}
-
-        //public async Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(
-        //        Command.GetAxisParameter,
-        //        0,  (byte) CommandParam.AxisParameter.TargetPositionReached,
-        //        Address,
-        //        motorOrBank,
-        //        default);
-        //    if (reply.IsSuccess)
-        //    {
-        //        Logger?.LogInformation("{StepMotor}: Target position is reached: {IsReached}", Id, reply.ReturnValue == 1);
-        //        return reply.ReturnValue == 1;
-        //    }
-
-        //    throw LogThenFail();
-        //}
-
-        //public async Task<bool> IsInMotionAsync(MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(
-        //        Command.GetAxisParameter,
-        //        0,
-        //        CommandParam.AxisParameter.ActualSpeed,
-        //        motorOrBank);
-
-        //    if (reply.IsSuccess)
-        //    {
-        //        Logger?.LogInformation("{StepMotor}: Step motor is in motion: {InMotion}", Id, reply.ReturnValue != 0);
-        //        return reply.ReturnValue != 0;
-        //    }
-
-        //    throw LogThenFail();
-        //}
-
-
-        //public async Task StopAsync(MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(
-        //        Command.MotorStop,
-        //        0,
-        //        CommandParam.RefSearchType.Stop,
-        //        motorOrBank);
-        //    if (!reply.IsSuccess)
-        //        throw LogThenFail();
-
-        //    Logger?.LogWarning("{StepMotor}: Motor was forced to stop", Id);
-        //}
-
-
-        //public async Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default)
-        //{
-        //    var reply = await SendCommandAsync(Command.GetAxisParameter, 0, param, motorOrBank);
-        //    if (reply.IsSuccess)
-        //    {
-        //        Logger?.LogInformation("{StepMotor}: {AxisParam} = {Value}", Id, param, reply.ReturnValue);
-        //        return reply.ReturnValue;
-        //    }
-
-        //    throw LogThenFail(
-        //        $"{nameof(Command.GetAxisParameter)} failed to retrieve axis parameter.",
-        //        "{StepMotor}: Failed retrieving {AxisParam}", param);
-        //}
-
 
         public virtual async Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default)
         {
@@ -272,12 +174,11 @@ namespace StepMotor
         }
 
         public virtual async Task WaitForPositionReachedAsync(
-            IProgress<(int Current, int Target)>? progressReporter,
+            IProgress<RotationProgress>? progressReporter,
             CancellationToken token = default,
             TimeSpan timeOut = default,
             MotorBank motorOrBank = default)
         {
-            //TODO : Move exception logging here
             try
             {
                 token.ThrowIfCancellationRequested();

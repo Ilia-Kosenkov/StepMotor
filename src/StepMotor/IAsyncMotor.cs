@@ -38,20 +38,8 @@ namespace StepMotor
 
         Task WaitForPositionReachedAsync(CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default);
 
-        Task WaitForPositionReachedAsync(IProgress<(int Current, int Target)> progressReporter,
+        Task WaitForPositionReachedAsync(IProgress<RotationProgress> progressReporter,
             CancellationToken token = default, TimeSpan timeOut = default, MotorBank motorOrBank = default);
-
-        //Task<bool> IsTargetPositionReachedAsync(MotorBank motorOrBank = default);
-
-        //Task<int> GetPositionAsync(MotorBank motorOrBank = default);
-
-        //Task<int> GetActualPositionAsync(MotorBank motorOrBank = default);
-
-        //Task<ImmutableDictionary<CommandParam.AxisParameter, int>> GetRotationStatusAsync(MotorBank motorOrBank = default);
-
-        
-
-        //Task<int> GetAxisParameterAsync(CommandParam.AxisParameter param, MotorBank motorOrBank = default);
 
         Task<bool> TrySwitchToBinary();
 
@@ -64,8 +52,6 @@ namespace StepMotor
             int argument,
             CommandParam param,
             MotorBank motorOrBank = default);
-
-        //Task<bool> IsInMotionAsync(MotorBank motorOrBank = default);
-        //Task StopAsync(MotorBank motorOrBank = default);
+       
     }
 }

@@ -65,7 +65,7 @@ namespace StepMotor
                         is { IsSuccess: true, ReturnValue: var returnVal })
                         builder.Add(param, returnVal);
                 }
-                catch (Exception)
+                catch
                 {
                     // ignore
                 }

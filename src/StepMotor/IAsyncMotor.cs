@@ -44,12 +44,12 @@ namespace StepMotor
 
         Task<Reply> SendCommandAsync(
             Command command, int argument,
-            Union.CommandParam param, MotorBank motorOrBank = default);
+            CommandParam param, MotorBank motorOrBank = default);
 
         Task<int> InvokeCommandAsync(
             Command command,
             int argument,
-            Union.CommandParam param,
+            CommandParam param,
             MotorBank motorOrBank = default);
        
     }

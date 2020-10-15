@@ -28,7 +28,6 @@ using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using StepMotor.Union;
 
 namespace StepMotor
 {
@@ -104,7 +103,7 @@ namespace StepMotor
 
         public virtual Task<Reply> SendCommandAsync(
             Command command, int argument,
-            Union.CommandParam param, MotorBank motorOrBank = default) =>
+            CommandParam param, MotorBank motorOrBank = default) =>
             SendCommandAsync(
                 command,
                 argument,
@@ -117,7 +116,7 @@ namespace StepMotor
         public async Task<int> InvokeCommandAsync(
             Command command, 
             int argument, 
-            Union.CommandParam param, 
+            CommandParam param, 
             MotorBank motorOrBank = default) 
             => await SendCommandAsync(command, argument, param, motorOrBank) switch
             {
@@ -216,13 +215,13 @@ namespace StepMotor
                             throw new TimeoutException();
                         await Task.Delay(delayMs, token);
                         current = await this.GetPositionAsync(motorOrBank);
-                        progressReporter?.Report((current, target));
+                        progressReporter?.Report(new RotationProgress(current, target));
                     }
 
                 }
 
                 current = await this.GetPositionAsync(motorOrBank);
-                progressReporter?.Report((current, target));
+                progressReporter?.Report(new RotationProgress(current, target));
             }
             catch (TimeoutException tEx)
             {

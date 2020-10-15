@@ -93,7 +93,7 @@ namespace StepMotor
         {
             try
             {
-                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, Union.CommandParam.Default, 0)).IsSuccess)
+                if ((await motor.SendCommandAsync(Command.GetAxisParameter, 1, CommandParam.Default, 0)).IsSuccess)
                     return true;
             }
             catch (TimeoutException)

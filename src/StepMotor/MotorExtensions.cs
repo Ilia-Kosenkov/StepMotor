@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using StepMotor.Union;
 
 namespace StepMotor
 {
@@ -18,7 +17,7 @@ namespace StepMotor
             => motor?.SendCommandAsync(
                    Command.MoveToPosition, 
                    position, 
-                   type ?? (Union.CommandParam)Union.CommandParam.Default, 
+                   type ?? (CommandParam)CommandParam.Default, 
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
@@ -26,13 +25,13 @@ namespace StepMotor
             GetStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
-            => GetAxisParametersAsync(motor, Union.CommandParam.RotationAxisParams, motorOrBank);
+            => GetAxisParametersAsync(motor, CommandParam.RotationAxisParams, motorOrBank);
 
         public static Task<ImmutableDictionary<AxisParam, int>> 
             GetRotationStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
-            => GetAxisParametersAsync(motor, Union.CommandParam.GeneralAxisParams, motorOrBank);
+            => GetAxisParametersAsync(motor, CommandParam.GeneralAxisParams, motorOrBank);
 
         public static Task<int>
             GetAxisParameterAsync(

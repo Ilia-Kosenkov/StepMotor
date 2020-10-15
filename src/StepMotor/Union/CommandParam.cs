@@ -7,8 +7,8 @@ namespace StepMotor.Union
 {
     public abstract class CommandParam
     {
-        public static ImmutableArray<AxisParameter> GeneralAxisParams { get; }
-            = new AxisParameter[]
+        public static ImmutableArray<AxisParam> GeneralAxisParams { get; }
+            = new AxisParam[]
             {
                 AxisParameterType.TargetPosition,
                 AxisParameterType.ActualPosition,
@@ -27,8 +27,8 @@ namespace StepMotor.Union
                 AxisParameterType.StepRatePreScaler
             }.ToImmutableArray();
 
-        public static ImmutableArray<AxisParameter> RotationAxisParams { get; }
-            = new AxisParameter[]
+        public static ImmutableArray<AxisParam> RotationAxisParams { get; }
+            = new AxisParam[]
             {
                 AxisParameterType.TargetPosition,
                 AxisParameterType.ActualPosition,
@@ -48,9 +48,9 @@ namespace StepMotor.Union
         public static explicit operator byte(CommandParam param) => param.AsByte();
 
         public static implicit operator CommandParam(RefSearchType type) => new RefSearchParam(type);
-        public static implicit operator CommandParam(global::StepMotor.CommandParam.MoveType type) => new MoveType(type);
-        public static implicit operator CommandParam(global::StepMotor.CommandParam.CalcType type) => new CalcType(type);
-        public static implicit operator CommandParam(AxisParameterType @param) => new AxisParameter(@param);
+        public static implicit operator CommandParam(global::StepMotor.CommandParam.MoveType type) => new MoveParam(type);
+        public static implicit operator CommandParam(global::StepMotor.CommandParam.CalcType type) => new CalcParam(type);
+        public static implicit operator CommandParam(AxisParameterType @param) => new AxisParam(@param);
 
 
     }
@@ -73,42 +73,42 @@ namespace StepMotor.Union
 
     }
 
-    public sealed class MoveType : CommandParam
+    public sealed class MoveParam : CommandParam
     {
         public global::StepMotor.CommandParam.MoveType Value { get; }
 
-        public MoveType(global::StepMotor.CommandParam.MoveType type) => Value = type;
+        public MoveParam(global::StepMotor.CommandParam.MoveType type) => Value = type;
 
 
         protected override byte AsByte() => (byte)Value;
 
-        public static implicit operator MoveType(global::StepMotor.CommandParam.MoveType type) => new MoveType(type);
+        public static implicit operator MoveParam(global::StepMotor.CommandParam.MoveType type) => new MoveParam(type);
 
     }
 
-    public sealed class CalcType : CommandParam
+    public sealed class CalcParam : CommandParam
     {
         public global::StepMotor.CommandParam.CalcType Value { get; }
 
-        public CalcType(global::StepMotor.CommandParam.CalcType type) => Value = type;
+        public CalcParam(global::StepMotor.CommandParam.CalcType type) => Value = type;
 
 
         protected override byte AsByte() => (byte)Value;
 
-        public static implicit operator CalcType(global::StepMotor.CommandParam.CalcType type) => new CalcType(type);
+        public static implicit operator CalcParam(global::StepMotor.CommandParam.CalcType type) => new CalcParam(type);
 
     }
 
-    public sealed class AxisParameter : CommandParam
+    public sealed class AxisParam : CommandParam
     {
         public AxisParameterType Value { get; }
 
-        public AxisParameter(AxisParameterType @param) => Value = @param;
+        public AxisParam(AxisParameterType @param) => Value = @param;
 
 
         protected override byte AsByte() => (byte)Value;
 
-        public static implicit operator AxisParameter(AxisParameterType @param) => new AxisParameter(@param);
+        public static implicit operator AxisParam(AxisParameterType @param) => new AxisParam(@param);
 
     }
 }

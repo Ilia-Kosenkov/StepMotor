@@ -18,13 +18,13 @@ namespace StepMotor
             => motor?.SendCommandAsync(Command.MoveToPosition, position, type, motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
-        public static Task<ImmutableDictionary<AxisParameter, int>> 
+        public static Task<ImmutableDictionary<AxisParam, int>> 
             GetStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
             => GetAxisParametersAsync(motor, Union.CommandParam.RotationAxisParams, motorOrBank);
 
-        public static Task<ImmutableDictionary<AxisParameter, int>> 
+        public static Task<ImmutableDictionary<AxisParam, int>> 
             GetRotationStatusAsync(
             this IAsyncMotor motor,
             MotorBank motorOrBank = default)
@@ -33,7 +33,7 @@ namespace StepMotor
         public static Task<int>
             GetAxisParameterAsync(
                 this IAsyncMotor motor,
-                AxisParameter param,
+                AxisParam param,
                 MotorBank motorOrBank)
             => motor?.InvokeCommandAsync(
                    Command.GetAxisParameter,
@@ -42,22 +42,22 @@ namespace StepMotor
                    motorOrBank)
                ?? throw new ArgumentNullException(nameof(motor));
 
-        public static Task<ImmutableDictionary<AxisParameter, int>>
+        public static Task<ImmutableDictionary<AxisParam, int>>
             GetAxisParametersAsync(
                 this IAsyncMotor motor,
                 MotorBank motorOrBank = default,
-                params AxisParameter[] @params)
+                params AxisParam[] @params)
             => GetAxisParametersAsync(motor, @params.ToImmutableArray(), motorOrBank);
 
-        public static async Task<ImmutableDictionary<AxisParameter, int>>
+        public static async Task<ImmutableDictionary<AxisParam, int>>
             GetAxisParametersAsync(
                 this IAsyncMotor motor,
-                ImmutableArray<AxisParameter> @params,
+                ImmutableArray<AxisParam> @params,
                 MotorBank motorOrBank = default)
         {
             _ = motor ?? throw new ArgumentNullException(nameof(motor));
 
-            var builder = ImmutableDictionary.CreateBuilder<AxisParameter, int>();
+            var builder = ImmutableDictionary.CreateBuilder<AxisParam, int>();
 
             foreach (var param in @params)
             {
